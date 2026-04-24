@@ -14,19 +14,27 @@ app.use(express.json({ limit: "20mb" }));
 app.use(express.static(path.join(__dirname)));
 
 app.get("/health", (req, res) => {
-  res.json({
-    status: "ok",
-    service: "DocBrief API",
-    hasGroqKey: !!process.env.GROQ_API_KEY,
-    nodeVersion: process.version
-  });
+  res.json({ status: "ok", service: "DocBrief API", hasGroqKey: !!process.env.GROQ_API_KEY, nodeVersion: process.version });
 });
 
 app.post("/parse-pdf", upload.single("file"), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: "No file uploaded" });
     const data = await pdfParse(req.file.buffer);
-    res.json({ text: data.text });
+
+    // Clean and truncate text to stay within Groq's token limit
+    let text = data.text
+      .replace(/\s+/g, " ")           // collapse whitespace
+      .replace(/(.)\1{4,}/g, "$1")    // remove repeated characters
+      .trim();
+
+    // ~8000 tokens safe limit (1 token ≈ 4 chars)
+    const MAX_CHARS = 24000;
+    if (text.length > MAX_CHARS) {
+      text = text.slice(0, MAX_CHARS) + "\n\n[Document truncated for summarization]";
+    }
+
+    res.json({ text, truncated: data.text.length > MAX_CHARS });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
