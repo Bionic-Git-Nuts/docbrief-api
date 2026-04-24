@@ -6,11 +6,11 @@ const pdfParse = require("pdf-parse");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 50 * 1024 * 1024 } });
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 100 * 1024 * 1024 } });
 
 app.use(cors({ origin: "*" }));
 app.options("*", cors({ origin: "*" }));
-app.use(express.json({ limit: "50mb" }));
+app.use(express.json({ limit: "100mb" }));
 
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.path}`);
