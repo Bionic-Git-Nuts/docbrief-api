@@ -11,10 +11,17 @@ const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 50 
 app.use(cors({ origin: "*" }));
 app.options("*", cors({ origin: "*" }));
 app.use(express.json({ limit: "50mb" }));
+
+// Log every request
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`);
+  next();
+});
+
 app.use(express.static(path.join(__dirname)));
 
 app.get("/health", (req, res) => {
-  res.json({ status: "ok", version: "3.0", service: "DocBrief API", hasGeminiKey: !!process.env.GEMINI_API_KEY });
+  res.json({ status: "ok", version: "4.0", service: "DocBrief API", hasGeminiKey: !!process.env.GEMINI_API_KEY });
 });
 
 app.post("/parse-pdf", upload.single("file"), async (req, res) => {
@@ -29,6 +36,7 @@ app.post("/parse-pdf", upload.single("file"), async (req, res) => {
 });
 
 app.post("/summarize", async (req, res) => {
+  console.log("Summarize hit!");
   try {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return res.status(500).json({ error: "GEMINI_API_KEY not set" });
@@ -56,8 +64,9 @@ app.post("/summarize", async (req, res) => {
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
     res.json({ choices: [{ message: { content: text } }] });
   } catch (err) {
+    console.error("Summarize error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-app.listen(PORT, () => console.log(`DocBrief v3.0 running on port ${PORT}`));
+app.listen(PORT, () => console.log(`DocBrief v4.0 running on port ${PORT}`));
