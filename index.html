@@ -104,13 +104,13 @@
       </div>
       <div id="panel-file" class="panel">
         <div class="drop-zone" id="drop-zone">
-          <input type="file" id="file-input" accept=".txt,.md,.csv,.json,.html,.xml">
+          <input type="file" id="file-input" accept=".txt,.md,.csv,.json,.html,.xml,.pdf">
           <div class="drop-icon">⊞</div>
           <div class="drop-text">Drop a file or tap to browse</div>
-          <div class="drop-sub">.txt · .md · .csv · .json · .html</div>
+          <div class="drop-sub">.txt · .md · .pdf · .csv · .json · .html</div>
         </div>
         <div class="file-chip" id="file-chip" style="display:none">
-          <span style="font-size:18px">📄</span>
+          <span style="font-size:18px" id="file-chip-icon">📄</span>
           <span class="file-chip-name" id="file-chip-name"></span>
           <button class="file-chip-remove" onclick="clearFile()">✕</button>
         </div>
@@ -142,8 +142,8 @@
   <div id="loading-section" style="display:none">
     <div class="loading">
       <div class="spinner"></div>
-      <div class="loading-title">Reading your document…</div>
-      <div class="loading-sub">Extracting key insights</div>
+      <div class="loading-title" id="loading-title">Reading your document…</div>
+      <div class="loading-sub" id="loading-sub">Extracting key insights</div>
     </div>
   </div>
 
@@ -163,7 +163,7 @@
 </div>
 
 <script>
-  const BACKEND = "https://docbrief-api-production.up.railway.app/summarize";
+  const BACKEND = "https://docbrief-api-production.up.railway.app";
   let currentTab = "text";
   let opts = { format: "bullets", length: "medium" };
   let selectedFile = null;
@@ -194,6 +194,7 @@
     if (!f) return;
     selectedFile = f;
     document.getElementById('file-chip-name').textContent = f.name;
+    document.getElementById('file-chip-icon').textContent = f.type === 'application/pdf' ? '📕' : '📄';
     document.getElementById('file-chip').style.display = 'flex';
   });
 
@@ -206,6 +207,7 @@
     if (!f) return;
     selectedFile = f;
     document.getElementById('file-chip-name').textContent = f.name;
+    document.getElementById('file-chip-icon').textContent = f.type === 'application/pdf' ? '📕' : '📄';
     document.getElementById('file-chip').style.display = 'flex';
   });
 
@@ -230,28 +232,47 @@
         const t = document.getElementById('text-input').value.trim();
         if (t.length < 20) { showError("Please paste more text."); return; }
         userContent = `Summarize this document. Length: ${lengthMap[opts.length]}. ${formatInstr}\n\nDOCUMENT:\n${t}`;
+
       } else if (currentTab === "url") {
         const u = document.getElementById('url-input').value.trim();
         if (!u) { showError("Please enter a URL."); return; }
         userContent = `Summarize the content at this URL: ${u}\nLength: ${lengthMap[opts.length]}. ${formatInstr}`;
+
       } else {
         if (!selectedFile) { showError("Please select a file."); return; }
-        const text = await selectedFile.text();
-        userContent = `Summarize this document. Length: ${lengthMap[opts.length]}. ${formatInstr}\n\nDOCUMENT:\n${text}`;
+
+        if (selectedFile.type === "application/pdf") {
+          // Send PDF to backend for text extraction
+          setLoading("Extracting PDF text…", "Please wait");
+          show('loading');
+          const formData = new FormData();
+          formData.append("file", selectedFile);
+          const parseResp = await fetch(`${BACKEND}/parse-pdf`, {
+            method: "POST",
+            body: formData
+          });
+          const parseData = await parseResp.json();
+          if (!parseResp.ok || parseData.error) throw new Error(parseData.error || "PDF extraction failed");
+          userContent = `Summarize this document. Length: ${lengthMap[opts.length]}. ${formatInstr}\n\nDOCUMENT:\n${parseData.text}`;
+        } else {
+          const text = await selectedFile.text();
+          userContent = `Summarize this document. Length: ${lengthMap[opts.length]}. ${formatInstr}\n\nDOCUMENT:\n${text}`;
+        }
       }
     } catch(e) {
-      showError("Could not read file: " + e.message); return;
+      show('input');
+      showError("Could not read file: " + e.message);
+      return;
     }
 
+    setLoading("Reading your document…", "Extracting key insights");
     show('loading');
 
     try {
-      const resp = await fetch(BACKEND, {
+      const resp = await fetch(`${BACKEND}/summarize`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: [{ role: "user", content: userContent }]
-        })
+        body: JSON.stringify({ messages: [{ role: "user", content: userContent }] })
       });
 
       const data = await resp.json();
@@ -292,6 +313,11 @@
       show('input');
       showError("Something went wrong: " + e.message);
     }
+  }
+
+  function setLoading(title, sub) {
+    document.getElementById('loading-title').textContent = title;
+    document.getElementById('loading-sub').textContent = sub;
   }
 
   function show(section) {
