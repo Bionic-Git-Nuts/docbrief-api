@@ -14,7 +14,7 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.static(path.join(__dirname)));
 
 app.get("/health", (req, res) => {
-  res.json({ status: "ok", service: "DocBrief API", hasGeminiKey: !!process.env.GEMINI_API_KEY, nodeVersion: process.version });
+  res.json({ status: "ok", version: "3.0", service: "DocBrief API", hasGeminiKey: !!process.env.GEMINI_API_KEY });
 });
 
 app.post("/parse-pdf", upload.single("file"), async (req, res) => {
@@ -58,6 +58,6 @@ app.post("/summarize", async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-}); 
+});
 
-app.listen(PORT, () => console.log(`DocBrief running on port ${PORT}`));
+app.listen(PORT, () => console.log(`DocBrief v3.0 running on port ${PORT}`));
