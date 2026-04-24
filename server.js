@@ -58,6 +58,6 @@ app.post("/summarize", async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-});
+}); 
 
 app.listen(PORT, () => console.log(`DocBrief running on port ${PORT}`));
