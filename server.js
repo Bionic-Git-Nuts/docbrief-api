@@ -12,7 +12,6 @@ app.use(cors({ origin: "*" }));
 app.options("*", cors({ origin: "*" }));
 app.use(express.json({ limit: "50mb" }));
 
-// Log every request
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.path}`);
   next();
@@ -21,7 +20,7 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname)));
 
 app.get("/health", (req, res) => {
-  res.json({ status: "ok", version: "4.0", service: "DocBrief API", hasGeminiKey: !!process.env.GEMINI_API_KEY });
+  res.json({ status: "ok", version: "5.0", service: "DocBrief API", hasGeminiKey: !!process.env.GEMINI_API_KEY });
 });
 
 app.post("/parse-pdf", upload.single("file"), async (req, res) => {
@@ -47,7 +46,7 @@ app.post("/summarize", async (req, res) => {
     const userMessage = messages.find(m => m.role === "user")?.content || "";
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -69,4 +68,4 @@ app.post("/summarize", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => console.log(`DocBrief v4.0 running on port ${PORT}`));
+app.listen(PORT, () => console.log(`DocBrief v5.0 running on port ${PORT}`));
