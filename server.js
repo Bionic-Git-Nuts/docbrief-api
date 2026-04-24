@@ -14,21 +14,20 @@ app.get("/health", (req, res) => res.json({ status: "ok", service: "DocBrief API
 
 app.post("/summarize", async (req, res) => {
   try {
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) return res.status(500).json({ error: "ANTHROPIC_API_KEY not set" });
+    const apiKey = process.env.GROQ_API_KEY;
+    if (!apiKey) return res.status(500).json({ error: "GROQ_API_KEY not set" });
 
     const { messages } = req.body;
     if (!messages) return res.status(400).json({ error: "Missing messages" });
 
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "anthropic-version": "2023-06-01",
-        "x-api-key": apiKey,
+        "Authorization": `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model: "llama-3.3-70b-versatile",
         max_tokens: 1000,
         messages,
       }),
@@ -42,5 +41,6 @@ app.post("/summarize", async (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`DocBrief running on port ${PORT}`));
+
 
 
