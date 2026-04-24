@@ -232,17 +232,13 @@
         const t = document.getElementById('text-input').value.trim();
         if (t.length < 20) { showError("Please paste more text."); return; }
         userContent = `Summarize this document. Length: ${lengthMap[opts.length]}. ${formatInstr}\n\nDOCUMENT:\n${t}`;
-
       } else if (currentTab === "url") {
         const u = document.getElementById('url-input').value.trim();
         if (!u) { showError("Please enter a URL."); return; }
         userContent = `Summarize the content at this URL: ${u}\nLength: ${lengthMap[opts.length]}. ${formatInstr}`;
-
       } else {
         if (!selectedFile) { showError("Please select a file."); return; }
-
         if (selectedFile.type === "application/pdf") {
-          // Send PDF to backend for text extraction
           setLoading("Extracting PDF text…", "Please wait");
           show('loading');
           const formData = new FormData();
@@ -276,7 +272,8 @@
       });
 
       const data = await resp.json();
-      if (!resp.ok || data.error) throw new Error(data.error?.message || "HTTP " + resp.status);
+      if (!resp.ok || data.error) throw new Error(data.error?.message || "HTTP " + resp.status + " — " + JSON.stringify(data).slice(0, 300));
+      if (!data.choices) throw new Error("No choices in response — " + JSON.stringify(data).slice(0, 300));
 
       const raw = data.choices?.[0]?.message?.content?.trim() || "";
       if (!raw) throw new Error("Empty response from API");
