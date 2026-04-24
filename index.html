@@ -23,9 +23,12 @@
   body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px); background-size: 48px 48px; pointer-events: none; z-index: 0; }
   body::after { content: ''; position: fixed; top: -200px; left: 50%; transform: translateX(-50%); width: 800px; height: 500px; background: radial-gradient(ellipse, rgba(255,160,60,0.07) 0%, transparent 70%); pointer-events: none; z-index: 0; }
   .container { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; padding: 52px 20px 100px; }
-  .logo-row { display: flex; align-items: center; gap: 11px; margin-bottom: 18px; animation: fadeUp 0.5s ease both; }
+  .logo-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; animation: fadeUp 0.5s ease both; }
+  .logo-left { display: flex; align-items: center; gap: 11px; }
   .logo-icon { width: 34px; height: 34px; background: linear-gradient(135deg, var(--accent), var(--accent-deep)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
   .logo-text { font-size: 13px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim); }
+  .history-btn { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; padding: 7px 13px; color: var(--text-dim); font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; letter-spacing: 0.04em; }
+  .history-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
   h1 { font-family: 'Instrument Serif', serif; font-size: clamp(34px, 7vw, 52px); font-weight: 400; line-height: 1.08; color: #f0ede6; margin-bottom: 14px; animation: fadeUp 0.5s 0.08s ease both; }
   h1 em { font-style: italic; color: var(--accent); }
   .subhead { font-size: 15px; color: var(--text-dim); line-height: 1.65; margin-bottom: 48px; animation: fadeUp 0.5s 0.16s ease both; }
@@ -53,14 +56,15 @@
   .file-chip-remove:hover { color: var(--accent-deep); }
   .options-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
   .opt-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
-  .opt-group { display: flex; gap: 5px; }
+  .opt-group { display: flex; gap: 5px; flex-wrap: wrap; }
   .opt-btn { padding: 7px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); background: rgba(0,0,0,0.2); color: var(--text-dim); font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; cursor: pointer; transition: all 0.15s; }
   .opt-btn:hover { color: rgba(232,230,224,0.75); }
   .opt-btn.active { background: var(--accent-bg); border-color: var(--accent-border); color: var(--accent); }
+  select.opt-select { padding: 7px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); background: rgba(0,0,0,0.2); color: var(--text-dim); font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; outline: none; transition: all 0.15s; appearance: none; padding-right: 28px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(232,230,224,0.3)' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+  select.opt-select:focus { border-color: var(--accent-border); color: var(--text); }
   .submit-btn { width: 100%; padding: 15px; background: linear-gradient(135deg, var(--accent), var(--accent-deep)); border: none; border-radius: var(--radius); color: #fff; font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; transition: opacity 0.15s, transform 0.1s; margin-top: 18px; }
   .submit-btn:hover { opacity: 0.9; }
   .submit-btn:active { transform: scale(0.99); }
-  .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
   .loading { background: var(--surface); border: 1px solid var(--accent-border); border-radius: 16px; padding: 44px 24px; text-align: center; animation: fadeUp 0.3s ease both; }
   .spinner { width: 38px; height: 38px; border: 3px solid rgba(255,154,60,0.15); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.75s linear infinite; margin: 0 auto 18px; }
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -82,89 +86,151 @@
   .error-msg { background: rgba(255,80,80,0.07); border: 1px solid rgba(255,80,80,0.2); border-radius: 10px; padding: 13px 15px; font-size: 13px; color: rgba(255,160,160,0.9); font-family: 'JetBrains Mono', monospace; margin-top: 12px; word-break: break-word; }
   .panel { display: none; }
   .panel.active { display: block; }
+
+  /* History */
+  .history-section { animation: fadeUp 0.4s ease both; }
+  .history-empty { text-align: center; padding: 48px 20px; color: var(--text-muted); font-size: 14px; }
+  .history-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 12px; cursor: pointer; transition: border-color 0.15s; }
+  .history-item:hover { border-color: rgba(255,154,60,0.3); }
+  .history-item-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 10px; }
+  .history-item-source { font-size: 13px; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+  .history-item-date { font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; flex-shrink: 0; }
+  .history-item-preview { font-size: 13px; color: var(--text-dim); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .history-item-delete { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 14px; padding: 2px 6px; border-radius: 4px; transition: color 0.15s; flex-shrink: 0; }
+  .history-item-delete:hover { color: rgba(255,100,100,0.8); }
+  .history-clear-btn { width: 100%; padding: 11px; margin-top: 8px; background: transparent; border: 1px solid rgba(255,80,80,0.2); border-radius: var(--radius); color: rgba(255,120,120,0.6); font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer; transition: all 0.15s; }
+  .history-clear-btn:hover { color: rgba(255,120,120,0.9); border-color: rgba(255,80,80,0.4); }
+  .back-btn { display: flex; align-items: center; gap: 8px; background: none; border: none; color: var(--text-dim); font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; padding: 0; margin-bottom: 28px; transition: color 0.15s; }
+  .back-btn:hover { color: var(--text); }
 </style>
 </head>
 <body>
 <div class="container">
-  <div class="logo-row">
-    <div class="logo-icon">◈</div>
-    <span class="logo-text">DocBrief</span>
-  </div>
-  <h1>Summarize any<br><em>document, instantly.</em></h1>
-  <p class="subhead">Technical reports, research papers, legal docs, articles —<br>drop it in and get the essence in seconds.</p>
 
-  <div id="input-section">
-    <div class="card">
-      <div class="card-label">Input source</div>
-      <div class="tabs">
-        <button class="tab active" onclick="switchTab('text', this)">✦ Paste Text</button>
-        <button class="tab" onclick="switchTab('url', this)">⊕ URL</button>
-        <button class="tab" onclick="switchTab('file', this)">⊞ Upload File</button>
+  <!-- Main screen -->
+  <div id="main-screen">
+    <div class="logo-row">
+      <div class="logo-left">
+        <div class="logo-icon">◈</div>
+        <span class="logo-text">DocBrief</span>
       </div>
-      <div id="panel-text" class="panel active">
-        <textarea id="text-input" placeholder="Paste your document, report, article, or any text here…"></textarea>
-      </div>
-      <div id="panel-url" class="panel">
-        <input class="url-input" id="url-input" type="url" placeholder="https://example.com/report.html">
-      </div>
-      <div id="panel-file" class="panel">
-        <div class="drop-zone" id="drop-zone">
-          <input type="file" id="file-input" accept=".txt,.md,.csv,.json,.html,.xml,.pdf">
-          <div class="drop-icon">⊞</div>
-          <div class="drop-text">Drop a file or tap to browse</div>
-          <div class="drop-sub">.txt · .md · .pdf · .csv · .json · .html</div>
+      <button class="history-btn" onclick="showHistory()">⏱ History</button>
+    </div>
+    <h1>Summarize any<br><em>document, instantly.</em></h1>
+    <p class="subhead">Technical reports, research papers, legal docs, articles —<br>drop it in and get the essence in seconds.</p>
+
+    <div id="input-section">
+      <div class="card">
+        <div class="card-label">Input source</div>
+        <div class="tabs">
+          <button class="tab active" onclick="switchTab('text', this)">✦ Paste Text</button>
+          <button class="tab" onclick="switchTab('url', this)">⊕ URL</button>
+          <button class="tab" onclick="switchTab('file', this)">⊞ Upload File</button>
         </div>
-        <div class="file-chip" id="file-chip" style="display:none">
-          <span style="font-size:18px" id="file-chip-icon">📄</span>
-          <span class="file-chip-name" id="file-chip-name"></span>
-          <button class="file-chip-remove" onclick="clearFile()">✕</button>
+        <div id="panel-text" class="panel active">
+          <textarea id="text-input" placeholder="Paste your document, report, article, or any text here…"></textarea>
         </div>
+        <div id="panel-url" class="panel">
+          <input class="url-input" id="url-input" type="url" placeholder="https://example.com/report.html">
+        </div>
+        <div id="panel-file" class="panel">
+          <div class="drop-zone" id="drop-zone">
+            <input type="file" id="file-input" accept=".txt,.md,.csv,.json,.html,.xml,.pdf,.doc,.docx">
+            <div class="drop-icon">⊞</div>
+            <div class="drop-text">Drop a file or tap to browse</div>
+            <div class="drop-sub">.txt · .md · .pdf · .doc · .docx · .csv · .html</div>
+          </div>
+          <div class="file-chip" id="file-chip" style="display:none">
+            <span style="font-size:18px" id="file-chip-icon">📄</span>
+            <span class="file-chip-name" id="file-chip-name"></span>
+            <button class="file-chip-remove" onclick="clearFile()">✕</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Summary options</div>
+        <div class="options-row" style="margin-bottom:14px">
+          <span class="opt-label">Format</span>
+          <div class="opt-group">
+            <button class="opt-btn active" onclick="setOpt('format','bullets',this)">▸ Bullets</button>
+            <button class="opt-btn" onclick="setOpt('format','paragraph',this)">¶ Paragraph</button>
+          </div>
+          <div style="flex:1"></div>
+          <span class="opt-label">Length</span>
+          <div class="opt-group">
+            <button class="opt-btn" onclick="setOpt('length','short',this)">Short</button>
+            <button class="opt-btn active" onclick="setOpt('length','medium',this)">Medium</button>
+            <button class="opt-btn" onclick="setOpt('length','long',this)">Long</button>
+          </div>
+        </div>
+        <div class="options-row">
+          <span class="opt-label">Language</span>
+          <select class="opt-select" id="language-select">
+            <option value="English">🇬🇧 English</option>
+            <option value="Spanish">🇪🇸 Spanish</option>
+            <option value="French">🇫🇷 French</option>
+            <option value="German">🇩🇪 German</option>
+            <option value="Italian">🇮🇹 Italian</option>
+            <option value="Portuguese">🇵🇹 Portuguese</option>
+            <option value="Dutch">🇳🇱 Dutch</option>
+            <option value="Russian">🇷🇺 Russian</option>
+            <option value="Arabic">🇸🇦 Arabic</option>
+            <option value="Chinese">🇨🇳 Chinese</option>
+            <option value="Japanese">🇯🇵 Japanese</option>
+            <option value="Korean">🇰🇷 Korean</option>
+            <option value="Hindi">🇮🇳 Hindi</option>
+            <option value="Turkish">🇹🇷 Turkish</option>
+            <option value="Polish">🇵🇱 Polish</option>
+            <option value="Swedish">🇸🇪 Swedish</option>
+            <option value="Norwegian">🇳🇴 Norwegian</option>
+            <option value="Danish">🇩🇰 Danish</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="error-msg" class="error-msg" style="display:none"></div>
+      <button class="submit-btn" onclick="handleSubmit()">Summarize Document →</button>
+    </div>
+
+    <div id="loading-section" style="display:none">
+      <div class="loading">
+        <div class="spinner"></div>
+        <div class="loading-title" id="loading-title">Reading your document…</div>
+        <div class="loading-sub" id="loading-sub">Extracting key insights</div>
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-label">Summary options</div>
-      <div class="options-row">
-        <span class="opt-label">Format</span>
-        <div class="opt-group">
-          <button class="opt-btn active" onclick="setOpt('format','bullets',this)">▸ Bullets</button>
-          <button class="opt-btn" onclick="setOpt('format','paragraph',this)">¶ Paragraph</button>
+    <div id="result-section" style="display:none">
+      <div class="result">
+        <div class="result-header">
+          <div>
+            <div class="result-title">Summary</div>
+            <div class="result-meta" id="result-meta"></div>
+          </div>
+          <button class="copy-btn" id="copy-btn" onclick="copyResult()">Copy</button>
         </div>
-        <div style="flex:1"></div>
-        <span class="opt-label">Length</span>
-        <div class="opt-group">
-          <button class="opt-btn" onclick="setOpt('length','short',this)">Short</button>
-          <button class="opt-btn active" onclick="setOpt('length','medium',this)">Medium</button>
-          <button class="opt-btn" onclick="setOpt('length','long',this)">Long</button>
-        </div>
+        <div class="result-body" id="result-body"></div>
+      </div>
+      <button class="new-btn" onclick="reset()">+ Summarize another document</button>
+    </div>
+  </div>
+
+  <!-- History screen -->
+  <div id="history-screen" style="display:none">
+    <div class="logo-row">
+      <div class="logo-left">
+        <div class="logo-icon">◈</div>
+        <span class="logo-text">DocBrief</span>
       </div>
     </div>
-
-    <div id="error-msg" class="error-msg" style="display:none"></div>
-    <button class="submit-btn" onclick="handleSubmit()">Summarize Document →</button>
-  </div>
-
-  <div id="loading-section" style="display:none">
-    <div class="loading">
-      <div class="spinner"></div>
-      <div class="loading-title" id="loading-title">Reading your document…</div>
-      <div class="loading-sub" id="loading-sub">Extracting key insights</div>
+    <button class="back-btn" onclick="showMain()">← Back</button>
+    <div class="history-section">
+      <div class="card-label">Recent summaries<span style="flex:1;height:1px;background:rgba(255,255,255,0.05);margin-left:8px;display:inline-block;vertical-align:middle"></span></div>
+      <div id="history-list"></div>
     </div>
   </div>
 
-  <div id="result-section" style="display:none">
-    <div class="result">
-      <div class="result-header">
-        <div>
-          <div class="result-title">Summary</div>
-          <div class="result-meta" id="result-meta"></div>
-        </div>
-        <button class="copy-btn" id="copy-btn" onclick="copyResult()">Copy</button>
-      </div>
-      <div class="result-body" id="result-body"></div>
-    </div>
-    <button class="new-btn" onclick="reset()">+ Summarize another document</button>
-  </div>
 </div>
 
 <script>
@@ -177,7 +243,90 @@
   let opts = { format: "bullets", length: "medium" };
   let selectedFile = null;
   let lastSummary = "";
+  let lastSource = "";
 
+  // ── History helpers ──
+  function getHistory() {
+    try { return JSON.parse(localStorage.getItem('docbrief_history') || '[]'); } catch { return []; }
+  }
+
+  function saveToHistory(source, summary, language) {
+    const history = getHistory();
+    history.unshift({
+      id: Date.now(),
+      source,
+      summary,
+      language,
+      date: new Date().toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' })
+    });
+    // Keep last 50
+    if (history.length > 50) history.pop();
+    localStorage.setItem('docbrief_history', JSON.stringify(history));
+  }
+
+  function deleteHistoryItem(id) {
+    const history = getHistory().filter(h => h.id !== id);
+    localStorage.setItem('docbrief_history', JSON.stringify(history));
+    renderHistory();
+  }
+
+  function clearHistory() {
+    if (confirm('Clear all history?')) {
+      localStorage.removeItem('docbrief_history');
+      renderHistory();
+    }
+  }
+
+  function renderHistory() {
+    const history = getHistory();
+    const el = document.getElementById('history-list');
+    if (!history.length) {
+      el.innerHTML = '<div class="history-empty">No summaries yet.<br>Summarize a document to see it here.</div>';
+      return;
+    }
+    el.innerHTML = history.map(h => {
+      const preview = Array.isArray(h.summary) ? h.summary[0] : h.summary.slice(0, 120);
+      return `
+        <div class="history-item" onclick="openHistoryItem(${h.id})">
+          <div class="history-item-header">
+            <span class="history-item-source">${h.source}</span>
+            <span class="history-item-date">${h.date}</span>
+            <button class="history-item-delete" onclick="event.stopPropagation(); deleteHistoryItem(${h.id})">✕</button>
+          </div>
+          <div class="history-item-preview">${preview}…</div>
+        </div>
+      `;
+    }).join('') + `<button class="history-clear-btn" onclick="clearHistory()">Clear all history</button>`;
+  }
+
+  function openHistoryItem(id) {
+    const item = getHistory().find(h => h.id === id);
+    if (!item) return;
+    lastSummary = Array.isArray(item.summary) ? item.summary.join("\n• ") : item.summary;
+    lastSource = item.source;
+    document.getElementById('result-meta').textContent = item.source + ' · ' + item.date + (item.language !== 'English' ? ' · ' + item.language : '');
+    const body = document.getElementById('result-body');
+    if (Array.isArray(item.summary)) {
+      body.innerHTML = "<ul>" + item.summary.map(p => `<li>${p}</li>`).join("") + "</ul>";
+    } else {
+      body.innerHTML = "<p>" + item.summary + "</p>";
+    }
+    showMain();
+    show('result');
+  }
+
+  function showHistory() {
+    document.getElementById('main-screen').style.display = 'none';
+    document.getElementById('history-screen').style.display = 'block';
+    renderHistory();
+  }
+
+  function showMain() {
+    document.getElementById('history-screen').style.display = 'none';
+    document.getElementById('main-screen').style.display = 'block';
+  }
+
+  // ── App logic ──
   function switchTab(tab, btn) {
     currentTab = tab;
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -198,12 +347,18 @@
     document.getElementById('file-input').value = '';
   }
 
+  function getFileIcon(name) {
+    if (name.endsWith('.pdf')) return '📕';
+    if (name.endsWith('.doc') || name.endsWith('.docx')) return '📘';
+    return '📄';
+  }
+
   document.getElementById('file-input').addEventListener('change', function() {
     const f = this.files[0];
     if (!f) return;
     selectedFile = f;
     document.getElementById('file-chip-name').textContent = f.name;
-    document.getElementById('file-chip-icon').textContent = f.type === 'application/pdf' ? '📕' : '📄';
+    document.getElementById('file-chip-icon').textContent = getFileIcon(f.name);
     document.getElementById('file-chip').style.display = 'flex';
   });
 
@@ -216,13 +371,15 @@
     if (!f) return;
     selectedFile = f;
     document.getElementById('file-chip-name').textContent = f.name;
-    document.getElementById('file-chip-icon').textContent = f.type === 'application/pdf' ? '📕' : '📄';
+    document.getElementById('file-chip-icon').textContent = getFileIcon(f.name);
     document.getElementById('file-chip').style.display = 'flex';
   });
 
   async function handleSubmit() {
     const errorEl = document.getElementById('error-msg');
     errorEl.style.display = 'none';
+
+    const language = document.getElementById('language-select').value;
 
     const lengthMap = {
       short:  "brief: 2-3 sentences or 3-4 bullet points",
@@ -234,31 +391,40 @@
       ? 'Return ONLY a JSON array of bullet strings like ["Point one.", "Point two."]. No other text.'
       : 'Return ONLY a plain paragraph of text. No JSON, no markdown.';
 
+    const langInstr = language !== 'English' ? `Write the summary in ${language}.` : '';
+
     let userContent = "";
+    let source = "";
 
     try {
       if (currentTab === "text") {
         const t = document.getElementById('text-input').value.trim();
         if (t.length < 20) { showError("Please paste more text."); return; }
-        userContent = `Summarize this document. Length: ${lengthMap[opts.length]}. ${formatInstr}\n\nDOCUMENT:\n${t}`;
+        source = "Pasted text";
+        userContent = `Summarize this document. Length: ${lengthMap[opts.length]}. ${langInstr} ${formatInstr}\n\nDOCUMENT:\n${t}`;
       } else if (currentTab === "url") {
         const u = document.getElementById('url-input').value.trim();
         if (!u) { showError("Please enter a URL."); return; }
-        userContent = `Summarize the content at this URL: ${u}\nLength: ${lengthMap[opts.length]}. ${formatInstr}`;
+        source = u;
+        userContent = `Summarize the content at this URL: ${u}\nLength: ${lengthMap[opts.length]}. ${langInstr} ${formatInstr}`;
       } else {
         if (!selectedFile) { showError("Please select a file."); return; }
-        if (selectedFile.type === "application/pdf") {
-          setLoading("Extracting PDF text…", "Please wait");
+        source = selectedFile.name;
+        const name = selectedFile.name.toLowerCase();
+        const needsServer = name.endsWith('.pdf') || name.endsWith('.doc') || name.endsWith('.docx');
+
+        if (needsServer) {
+          setLoading("Extracting document text…", "Please wait");
           show('loading');
           const formData = new FormData();
           formData.append("file", selectedFile);
-          const parseResp = await fetch(`${BACKEND}/parse-pdf`, { method: "POST", body: formData });
+          const parseResp = await fetch(`${BACKEND}/parse-file`, { method: "POST", body: formData });
           const parseData = await parseResp.json();
-          if (!parseResp.ok || parseData.error) throw new Error(parseData.error || "PDF extraction failed");
-          userContent = `Summarize this document. Length: ${lengthMap[opts.length]}. ${formatInstr}\n\nDOCUMENT:\n${parseData.text}`;
+          if (!parseResp.ok || parseData.error) throw new Error(parseData.error || "File extraction failed");
+          userContent = `Summarize this document. Length: ${lengthMap[opts.length]}. ${langInstr} ${formatInstr}\n\nDOCUMENT:\n${parseData.text}`;
         } else {
           const text = await selectedFile.text();
-          userContent = `Summarize this document. Length: ${lengthMap[opts.length]}. ${formatInstr}\n\nDOCUMENT:\n${text}`;
+          userContent = `Summarize this document. Length: ${lengthMap[opts.length]}. ${langInstr} ${formatInstr}\n\nDOCUMENT:\n${text}`;
         }
       }
     } catch(e) {
@@ -299,10 +465,13 @@
       }
 
       lastSummary = Array.isArray(summary) ? summary.join("\n• ") : summary;
+      lastSource = source;
 
-      const source = currentTab === "file" ? selectedFile.name : currentTab === "url" ? document.getElementById('url-input').value : "Pasted text";
+      // Save to history
+      saveToHistory(source, summary, language);
+
       const words = lastSummary.split(/\s+/).length;
-      document.getElementById('result-meta').textContent = source + " · ~" + words + " words";
+      document.getElementById('result-meta').textContent = source + " · ~" + words + " words" + (language !== 'English' ? ' · ' + language : '');
 
       const body = document.getElementById('result-body');
       if (Array.isArray(summary)) {
