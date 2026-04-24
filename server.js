@@ -3,6 +3,7 @@ const cors = require("cors");
 const path = require("path");
 const multer = require("multer");
 const pdfParse = require("pdf-parse");
+const mammoth = require("mammoth");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -20,14 +21,34 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname)));
 
 app.get("/health", (req, res) => {
-  res.json({ status: "ok", version: "5.0", service: "DocBrief API", hasGeminiKey: !!process.env.GEMINI_API_KEY });
+  res.json({ status: "ok", version: "6.0", service: "DocBrief API", hasGeminiKey: !!process.env.GEMINI_API_KEY });
 });
 
-app.post("/parse-pdf", upload.single("file"), async (req, res) => {
+app.post("/parse-file", upload.single("file"), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: "No file uploaded" });
-    const data = await pdfParse(req.file.buffer);
-    const text = data.text.replace(/\s+/g, " ").trim();
+
+    const mime = req.file.mimetype;
+    const name = req.file.originalname.toLowerCase();
+    let text = "";
+
+    if (mime === "application/pdf" || name.endsWith(".pdf")) {
+      const data = await pdfParse(req.file.buffer);
+      text = data.text;
+    } else if (
+      mime === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+      name.endsWith(".docx")
+    ) {
+      const result = await mammoth.extractRawText({ buffer: req.file.buffer });
+      text = result.value;
+    } else if (mime === "application/msword" || name.endsWith(".doc")) {
+      const result = await mammoth.extractRawText({ buffer: req.file.buffer });
+      text = result.value;
+    } else {
+      text = req.file.buffer.toString("utf-8");
+    }
+
+    text = text.replace(/\s+/g, " ").trim();
     res.json({ text });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -35,7 +56,6 @@ app.post("/parse-pdf", upload.single("file"), async (req, res) => {
 });
 
 app.post("/summarize", async (req, res) => {
-  console.log("Summarize hit!");
   try {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return res.status(500).json({ error: "GEMINI_API_KEY not set" });
@@ -52,7 +72,7 @@ app.post("/summarize", async (req, res) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: [{ parts: [{ text: userMessage }] }],
-          generationConfig: { maxOutputTokens: 1000 }
+          generationConfig: { maxOutputTokens: 1500 }
         }),
       }
     );
@@ -63,9 +83,8 @@ app.post("/summarize", async (req, res) => {
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
     res.json({ choices: [{ message: { content: text } }] });
   } catch (err) {
-    console.error("Summarize error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-app.listen(PORT, () => console.log(`DocBrief v5.0 running on port ${PORT}`));
+app.listen(PORT, () => console.log(`DocBrief v6.0 running on port ${PORT}`));
