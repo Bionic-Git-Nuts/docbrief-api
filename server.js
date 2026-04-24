@@ -1,15 +1,16 @@
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors({ origin: "*" }));
-app.use(express.json({ limit: "20mb" }));
-
 app.options("*", cors({ origin: "*" }));
+app.use(express.json({ limit: "20mb" }));
+app.use(express.static(path.join(__dirname)));
 
-app.get("/", (req, res) => res.json({ status: "ok", service: "DocBrief API" }));
+app.get("/health", (req, res) => res.json({ status: "ok", service: "DocBrief API" }));
 
 app.post("/summarize", async (req, res) => {
   try {
@@ -40,5 +41,6 @@ app.post("/summarize", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => console.log(`DocBrief API running on port ${PORT}`));
+app.listen(PORT, () => console.log(`DocBrief running on port ${PORT}`));
+
 
