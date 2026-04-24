@@ -10,7 +10,14 @@ app.options("*", cors({ origin: "*" }));
 app.use(express.json({ limit: "20mb" }));
 app.use(express.static(path.join(__dirname)));
 
-app.get("/health", (req, res) => res.json({ status: "ok", service: "DocBrief API" }));
+app.get("/health", (req, res) => {
+  res.json({ 
+    status: "ok", 
+    service: "DocBrief API",
+    hasGroqKey: !!process.env.GROQ_API_KEY,
+    nodeVersion: process.version
+  });
+});
 
 app.post("/summarize", async (req, res) => {
   try {
@@ -19,6 +26,8 @@ app.post("/summarize", async (req, res) => {
 
     const { messages } = req.body;
     if (!messages) return res.status(400).json({ error: "Missing messages" });
+
+    console.log("Calling Groq API...");
 
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
@@ -33,14 +42,15 @@ app.post("/summarize", async (req, res) => {
       }),
     });
 
+    console.log("Groq status:", response.status);
     const data = await response.json();
+    console.log("Groq response keys:", Object.keys(data));
+
     res.status(response.status).json(data);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Error:", err);
+    res.status(500).json({ error: err.message, stack: err.stack });
   }
 });
 
 app.listen(PORT, () => console.log(`DocBrief running on port ${PORT}`));
-
-
-
