@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="Accipiter">
 <meta name="theme-color" content="#ff9a3c">
 <link rel="manifest" href="/manifest.json">
-  <link rel="apple-touch-icon" href="/Owl-logo.png">
+<link rel="apple-touch-icon" href="/Owl-logo.png">
 <link rel="apple-touch-icon-precomposed" href="/Owl-logo.png">
 <title>Accipiter — Document Summarizer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,21 +27,36 @@
   html, body { min-height: 100vh; background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; -webkit-font-smoothing: antialiased; }
   body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px); background-size: 48px 48px; pointer-events: none; z-index: 0; }
   body::after { content: ''; position: fixed; top: -200px; left: 50%; transform: translateX(-50%); width: 800px; height: 500px; background: radial-gradient(ellipse, rgba(255,160,60,0.07) 0%, transparent 70%); pointer-events: none; z-index: 0; }
-  .container { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; padding: 52px 20px 100px; }
+
+  /* Quota bar */
+  .quota-bar-wrap { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(12,12,15,0.95); border-bottom: 1px solid rgba(255,255,255,0.06); padding: 8px 20px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+  .quota-bar-inner { max-width: 760px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
+  .quota-label { font-size: 11px; font-family: 'JetBrains Mono', monospace; color: var(--text-muted); white-space: nowrap; min-width: 150px; }
+  .quota-track { flex: 1; height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
+  .quota-fill { height: 100%; border-radius: 2px; transition: width 0.4s ease, background 0.4s ease; width: 0%; background: #4caf7d; }
+  .quota-reset { font-size: 10px; font-family: 'JetBrains Mono', monospace; color: var(--text-muted); white-space: nowrap; }
+
+  .container { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; padding: 80px 20px 100px; }
   .logo-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; animation: fadeUp 0.5s ease both; }
   .logo-left { display: flex; align-items: center; gap: 11px; }
   .logo-icon { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .logo-icon img { width: 36px; height: 36px; border-radius: 8px; object-fit: cover; }
   .logo-text { font-size: 13px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim); }
-  .top-btns { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  .top-btns { display: flex; gap: 6px; }
   .top-btn { border-radius: 8px; padding: 7px 11px; font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.15s; letter-spacing: 0.04em; border: 1px solid; }
   .top-btn-history { background: rgba(255,255,255,0.04); border-color: var(--border); color: var(--text-dim); }
-  .top-btn-compare { background: var(--blue-bg); border-color: var(--blue-border); color: var(--blue); }
-  .top-btn-extract { background: var(--green-bg); border-color: var(--green-border); color: var(--green); }
-  .top-btn-translate { background: var(--purple-bg); border-color: var(--purple-border); color: var(--purple); }
+  .top-btn-history:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
+
+  /* Action row */
+  .action-row { display: flex; gap: 8px; margin-bottom: 16px; }
+  .action-btn { flex: 1; padding: 13px 8px; border-radius: 12px; font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; cursor: pointer; transition: all 0.15s; border: 1px solid; text-align: center; }
+  .action-btn:hover { opacity: 0.8; }
+  .action-btn-translate { background: var(--purple-bg); border-color: var(--purple-border); color: var(--purple); }
+  .action-btn-extract { background: var(--green-bg); border-color: var(--green-border); color: var(--green); }
+  .action-btn-compare { background: var(--blue-bg); border-color: var(--blue-border); color: var(--blue); }
+
   h1 { font-family: 'Instrument Serif', serif; font-size: clamp(34px, 7vw, 52px); font-weight: 400; line-height: 1.08; color: #f0ede6; margin-bottom: 14px; animation: fadeUp 0.5s 0.08s ease both; }
   h1 em { font-style: italic; color: var(--accent); }
-  .subhead { font-size: 15px; color: var(--text-dim); line-height: 1.65; margin-bottom: 48px; animation: fadeUp 0.5s 0.16s ease both; }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 16px; animation: fadeUp 0.5s 0.22s ease both; }
   .card-label { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
@@ -142,26 +157,39 @@
 </style>
 </head>
 <body>
+
+<!-- Quota bar -->
+<div class="quota-bar-wrap">
+  <div class="quota-bar-inner">
+    <span class="quota-label" id="quota-label">Daily: 0 / 1500</span>
+    <div class="quota-track">
+      <div class="quota-fill" id="quota-fill"></div>
+    </div>
+    <span class="quota-reset" id="quota-reset"></span>
+  </div>
+</div>
+
 <div class="container">
 
-  <!-- Main / Summarize screen -->
+  <!-- Main screen -->
   <div id="main-screen">
     <div class="logo-row">
       <div class="logo-left">
-        <div class="logo-icon"><img src="/Owl-logo.png" alt="DocBrief"></div>
+        <div class="logo-icon"><img src="/Owl-logo.png" alt="Accipiter"></div>
         <span class="logo-text">Accipiter</span>
       </div>
       <div class="top-btns">
-        <button class="top-btn top-btn-translate" onclick="showScreen('translate')">⟳ Translate</button>
-        <button class="top-btn top-btn-extract" onclick="showScreen('extract')">⬡ Extract</button>
-        <button class="top-btn top-btn-compare" onclick="showScreen('compare')">⇄ Compare</button>
         <button class="top-btn top-btn-history" onclick="showScreen('history')">⏱</button>
       </div>
     </div>
-    
-    
+    <h1>Summarize any<br><em>document, instantly.</em></h1>
 
     <div id="input-section">
+      <div class="action-row">
+        <button class="action-btn action-btn-translate" onclick="showScreen('translate')">⟳ Translate</button>
+        <button class="action-btn action-btn-extract" onclick="showScreen('extract')">⬡ Extract</button>
+        <button class="action-btn action-btn-compare" onclick="showScreen('compare')">⇄ Compare</button>
+      </div>
       <div class="card">
         <div class="card-label">Input source</div>
         <div class="tabs">
@@ -176,7 +204,7 @@
           <input class="url-input" id="url-input" type="url" placeholder="https://example.com/report.html">
         </div>
         <div id="panel-file" class="panel">
-          <div class="drop-zone" id="drop-zone">
+          <div class="drop-zone">
             <input type="file" id="file-input" accept=".txt,.md,.csv,.json,.html,.xml,.pdf,.doc,.docx">
             <div class="drop-icon">⊞</div>
             <div class="drop-text">Drop a file or tap to browse</div>
@@ -262,7 +290,7 @@
   <div id="extract-screen" style="display:none">
     <div class="logo-row">
       <div class="logo-left">
-        <div class="logo-icon"><img src="/Owl-logo.png" alt="DocBrief"></div>
+        <div class="logo-icon"><img src="/Owl-logo.png" alt="Accipiter"></div>
         <span class="logo-text">Accipiter</span>
       </div>
     </div>
@@ -297,7 +325,7 @@
     </div>
     <div class="card">
       <div class="card-label">What to extract</div>
-      <input class="query-input" id="extract-query" placeholder="e.g. all dates and deadlines, names and emails, financial figures, action items…">
+      <input class="query-input" id="extract-query" placeholder="e.g. all dates and deadlines, names and emails, financial figures…">
     </div>
     <div class="card">
       <div class="card-label">Output format</div>
@@ -309,8 +337,7 @@
     <div id="extract-error" class="error-msg" style="display:none"></div>
     <button class="submit-btn btn-green" onclick="handleExtract()">⬡ Extract Content</button>
     <div id="extract-loading" style="display:none;margin-top:20px">
-      <div class="loading">
-        <div class="spinner"></div>
+      <div class="loading"><div class="spinner"></div>
         <div class="loading-title">Extracting content…</div>
         <div class="loading-sub">Finding what you need</div>
       </div>
@@ -318,10 +345,8 @@
     <div id="extract-result" style="display:none;margin-top:20px">
       <div class="result">
         <div class="result-header">
-          <div>
-            <div class="result-title">Extracted Content</div>
-            <div class="result-meta" id="extract-result-meta"></div>
-          </div>
+          <div><div class="result-title">Extracted Content</div>
+          <div class="result-meta" id="extract-result-meta"></div></div>
         </div>
         <div class="extracted-preview" id="extract-preview"></div>
         <a id="extract-download-link" class="download-btn download-btn-green" style="display:none">⬇ Download File</a>
@@ -334,7 +359,7 @@
   <div id="translate-screen" style="display:none">
     <div class="logo-row">
       <div class="logo-left">
-        <div class="logo-icon"><img src="/Owl-logo.png" alt="DocBrief"></div>
+        <div class="logo-icon"><img src="/Owl-logo.png" alt="Accipiter"></div>
         <span class="logo-text">Accipiter</span>
       </div>
     </div>
@@ -400,8 +425,7 @@
     <div id="translate-error" class="error-msg" style="display:none"></div>
     <button class="submit-btn btn-purple" onclick="handleTranslate()">⟳ Translate Document</button>
     <div id="translate-loading" style="display:none;margin-top:20px">
-      <div class="loading">
-        <div class="spinner"></div>
+      <div class="loading"><div class="spinner"></div>
         <div class="loading-title">Translating…</div>
         <div class="loading-sub">This may take a moment</div>
       </div>
@@ -409,10 +433,8 @@
     <div id="translate-result" style="display:none;margin-top:20px">
       <div class="result">
         <div class="result-header">
-          <div>
-            <div class="result-title">Translation</div>
-            <div class="result-meta" id="translate-result-meta"></div>
-          </div>
+          <div><div class="result-title">Translation</div>
+          <div class="result-meta" id="translate-result-meta"></div></div>
         </div>
         <div class="extracted-preview" id="translate-preview"></div>
         <a id="translate-download-link" class="download-btn download-btn-purple" style="display:none">⬇ Download Translation</a>
@@ -425,7 +447,7 @@
   <div id="compare-screen" style="display:none">
     <div class="logo-row">
       <div class="logo-left">
-        <div class="logo-icon"><img src="/Owl-logo.png" alt="DocBrief"></div>
+        <div class="logo-icon"><img src="/Owl-logo.png" alt="Accipiter"></div>
         <span class="logo-text">Accipiter</span>
       </div>
     </div>
@@ -455,8 +477,7 @@
       <button class="submit-btn btn-blue" onclick="handleCompare()">⇄ Compare Documents</button>
     </div>
     <div id="compare-loading" style="display:none;margin-top:20px">
-      <div class="loading">
-        <div class="spinner"></div>
+      <div class="loading"><div class="spinner"></div>
         <div class="loading-title">Comparing documents…</div>
         <div class="loading-sub">Finding differences</div>
       </div>
@@ -464,10 +485,8 @@
     <div id="compare-result" style="display:none;margin-top:20px">
       <div class="result">
         <div class="result-header">
-          <div>
-            <div class="result-title">Comparison</div>
-            <div class="result-meta" id="compare-meta"></div>
-          </div>
+          <div><div class="result-title">Comparison</div>
+          <div class="result-meta" id="compare-meta"></div></div>
           <button class="copy-btn" id="compare-copy-btn" onclick="copyCompare()">Copy</button>
         </div>
         <div id="compare-body"></div>
@@ -480,7 +499,7 @@
   <div id="history-screen" style="display:none">
     <div class="logo-row">
       <div class="logo-left">
-        <div class="logo-icon"><img src="/Owl-logo.png" alt="DocBrief"></div>
+        <div class="logo-icon"><img src="/Owl-logo.png" alt="Accipiter"></div>
         <span class="logo-text">Accipiter</span>
       </div>
     </div>
@@ -510,6 +529,37 @@
   let lastSummary = "";
   let lastCompareText = "";
 
+  // Quota tracking
+  function getQuota() {
+    try {
+      const q = JSON.parse(localStorage.getItem('accipiter_quota') || '{}');
+      const today = new Date().toDateString();
+      if (q.date !== today) return { date: today, count: 0 };
+      return q;
+    } catch { return { date: new Date().toDateString(), count: 0 }; }
+  }
+  function incrementQuota() {
+    const q = getQuota();
+    q.count += 1;
+    localStorage.setItem('accipiter_quota', JSON.stringify(q));
+    updateQuotaBar();
+  }
+  function updateQuotaBar() {
+    const q = getQuota();
+    const pct = Math.min((q.count / 1500) * 100, 100);
+    const color = pct < 60 ? '#4caf7d' : pct < 85 ? '#ff9a3c' : '#ff5f5f';
+    document.getElementById('quota-label').textContent = `Daily: ${q.count} / 1500`;
+    document.getElementById('quota-fill').style.width = pct + '%';
+    document.getElementById('quota-fill').style.background = color;
+    const now = new Date();
+    const midnight = new Date(now); midnight.setHours(24,0,0,0);
+    const hrs = Math.floor((midnight - now) / 3600000);
+    const mins = Math.floor(((midnight - now) % 3600000) / 60000);
+    document.getElementById('quota-reset').textContent = `Resets in ${hrs}h ${mins}m`;
+  }
+  updateQuotaBar();
+  setInterval(updateQuotaBar, 60000);
+
   function showScreen(name) {
     ['main','extract','translate','compare','history'].forEach(s => {
       document.getElementById(s + '-screen').style.display = s === name ? 'block' : 'none';
@@ -518,20 +568,20 @@
   }
 
   function getHistory() {
-    try { return JSON.parse(localStorage.getItem('docbrief_history') || '[]'); } catch { return []; }
+    try { return JSON.parse(localStorage.getItem('accipiter_history') || '[]'); } catch { return []; }
   }
   function saveToHistory(source, summary, language) {
     const h = getHistory();
     h.unshift({ id: Date.now(), source, summary, language, date: new Date().toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }) });
     if (h.length > 50) h.pop();
-    localStorage.setItem('docbrief_history', JSON.stringify(h));
+    localStorage.setItem('accipiter_history', JSON.stringify(h));
   }
   function deleteHistoryItem(id) {
-    localStorage.setItem('docbrief_history', JSON.stringify(getHistory().filter(h => h.id !== id)));
+    localStorage.setItem('accipiter_history', JSON.stringify(getHistory().filter(h => h.id !== id)));
     renderHistory();
   }
   function clearHistory() {
-    if (confirm('Clear all history?')) { localStorage.removeItem('docbrief_history'); renderHistory(); }
+    if (confirm('Clear all history?')) { localStorage.removeItem('accipiter_history'); renderHistory(); }
   }
   function renderHistory() {
     const history = getHistory();
@@ -565,28 +615,19 @@
     currentTab = tab;
     btn.closest('.tabs').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     btn.classList.add('active');
-    ['text','url','file'].forEach(t => {
-      const el = document.getElementById('panel-' + t);
-      if (el) el.classList.toggle('active', t === tab);
-    });
+    ['text','url','file'].forEach(t => { const el = document.getElementById('panel-' + t); if (el) el.classList.toggle('active', t === tab); });
   }
   function switchExtractTab(tab, btn) {
     extractTab = tab;
     btn.closest('.tabs').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     btn.classList.add('active');
-    ['file','url','text'].forEach(t => {
-      const el = document.getElementById('extract-panel-' + t);
-      if (el) el.classList.toggle('active', t === tab);
-    });
+    ['file','url','text'].forEach(t => { const el = document.getElementById('extract-panel-' + t); if (el) el.classList.toggle('active', t === tab); });
   }
   function switchTranslateTab(tab, btn) {
     translateTab = tab;
     btn.closest('.tabs').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     btn.classList.add('active');
-    ['text','url','file'].forEach(t => {
-      const el = document.getElementById('translate-panel-' + t);
-      if (el) el.classList.toggle('active', t === tab);
-    });
+    ['text','url','file'].forEach(t => { const el = document.getElementById('translate-panel-' + t); if (el) el.classList.toggle('active', t === tab); });
   }
   function setOpt(key, val, btn) {
     opts[key] = val;
@@ -695,7 +736,6 @@
     const formatInstr = opts.format === "bullets"
       ? 'Return ONLY a JSON array of bullet strings like ["Point one.", "Point two."]. No other text.'
       : 'Return ONLY a plain paragraph of text. No JSON, no markdown.';
-
     let userContent = "", source = "";
 
     if (currentTab === "text") {
@@ -753,6 +793,7 @@
     document.getElementById('result-body').innerHTML = Array.isArray(summary)
       ? "<ul>" + summary.map(p => `<li>${p}</li>`).join("") + "</ul>"
       : "<p>" + summary + "</p>";
+    incrementQuota();
     show('result');
   }
 
@@ -761,7 +802,6 @@
     errEl.style.display = 'none';
     const query = document.getElementById('extract-query').value.trim();
     if (!query) { errEl.textContent = "⚠ Please describe what to extract."; errEl.style.display = 'block'; return; }
-
     let body = { query, format: extractFormat };
     if (extractTab === 'file') {
       if (!extractFile) { errEl.textContent = "⚠ Please select a file."; errEl.style.display = 'block'; return; }
@@ -775,7 +815,6 @@
       if (t.length < 10) { errEl.textContent = "⚠ Please paste some text."; errEl.style.display = 'block'; return; }
       body.text = t;
     }
-
     document.getElementById('extract-loading').style.display = 'block';
     document.getElementById('extract-result').style.display = 'none';
     try {
@@ -789,6 +828,7 @@
       const link = document.getElementById('extract-download-link');
       link.href = url; link.download = `extracted.${extractFormat}`; link.style.display = 'inline-flex';
       document.getElementById('extract-loading').style.display = 'none';
+      incrementQuota();
       document.getElementById('extract-result').style.display = 'block';
     } catch(e) {
       document.getElementById('extract-loading').style.display = 'none';
@@ -801,7 +841,6 @@
     errEl.style.display = 'none';
     const target = document.getElementById('translate-target').value;
     let body = { targetLanguage: target, format: translateFormat };
-
     if (translateTab === 'text') {
       const t = document.getElementById('translate-text-input').value.trim();
       if (t.length < 10) { errEl.textContent = "⚠ Please paste some text."; errEl.style.display = 'block'; return; }
@@ -814,7 +853,6 @@
       if (!translateFile) { errEl.textContent = "⚠ Please select a file."; errEl.style.display = 'block'; return; }
       body.data = translateFile.base64; body.name = translateFile.name;
     }
-
     document.getElementById('translate-loading').style.display = 'block';
     document.getElementById('translate-result').style.display = 'none';
     try {
@@ -828,6 +866,7 @@
       const link = document.getElementById('translate-download-link');
       link.href = url; link.download = `translated_${target}.${translateFormat}`; link.style.display = 'inline-flex';
       document.getElementById('translate-loading').style.display = 'none';
+      incrementQuota();
       document.getElementById('translate-result').style.display = 'block';
     } catch(e) {
       document.getElementById('translate-loading').style.display = 'none';
@@ -881,6 +920,7 @@
         <tbody>${result.differences.map(d => `<tr><td>${d.category}</td><td>${d.doc1}</td><td>${d.doc2}</td></tr>`).join('')}</tbody>
       </table>`;
     document.getElementById('compare-loading').style.display = 'none';
+    incrementQuota();
     document.getElementById('compare-result').style.display = 'block';
   }
 
@@ -894,7 +934,6 @@
     document.getElementById('compare-input').style.display = 'block';
     document.getElementById('compare-result').style.display = 'none';
   }
-
   function resetExtract() {
     extractFile = null;
     document.getElementById('extract-file-chip').style.display = 'none';
@@ -905,7 +944,6 @@
     document.getElementById('extract-error').style.display = 'none';
     document.getElementById('extract-result').style.display = 'none';
   }
-
   function resetTranslate() {
     translateFile = null;
     document.getElementById('translate-file-chip').style.display = 'none';
@@ -915,7 +953,6 @@
     document.getElementById('translate-error').style.display = 'none';
     document.getElementById('translate-result').style.display = 'none';
   }
-
   function copyResult() {
     navigator.clipboard.writeText(lastSummary).then(() => {
       const btn = document.getElementById('copy-btn');
@@ -923,7 +960,6 @@
       setTimeout(() => { btn.textContent = "Copy"; btn.classList.remove('copied'); }, 2000);
     });
   }
-
   function copyCompare() {
     navigator.clipboard.writeText(lastCompareText).then(() => {
       const btn = document.getElementById('compare-copy-btn');
@@ -931,7 +967,6 @@
       setTimeout(() => { btn.textContent = "Copy"; btn.classList.remove('copied'); }, 2000);
     });
   }
-
   function reset() {
     document.getElementById('text-input').value = '';
     document.getElementById('url-input').value = '';
