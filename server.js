@@ -14,7 +14,7 @@ app.use(express.json({ limit: "100mb" }));
 app.use(express.static(path.join(__dirname)));
 
 app.get("/health", (req, res) => {
-  res.json({ status: "ok", version: "9.0", service: "DocBrief API", hasGeminiKey: !!process.env.GEMINI_API_KEY });
+  res.json({ status: "ok", version: "10.0", service: "DocBrief API", hasGeminiKey: !!process.env.GEMINI_API_KEY });
 });
 
 async function extractText(base64, name) {
@@ -31,6 +31,12 @@ async function extractText(base64, name) {
     text = buffer.toString("utf-8");
   }
   return text.replace(/\s+/g, " ").trim();
+}
+
+async function fetchUrl(url) {
+  const resp = await fetch(url);
+  const html = await resp.text();
+  return html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 50000);
 }
 
 async function callGemini(apiKey, prompt, maxTokens = 2000) {
@@ -128,17 +134,27 @@ app.post("/extract", async (req, res) => {
   try {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return res.status(500).json({ error: "GEMINI_API_KEY not set" });
-    const { data, name, query, format } = req.body;
-    if (!data || !name || !query) return res.status(400).json({ error: "Missing fields" });
+    const { data, name, url, text: pastedText, query, format } = req.body;
+    if (!query) return res.status(400).json({ error: "Missing query" });
 
-    const text = await extractText(data, name);
+    let sourceText = "";
+    if (url) {
+      sourceText = await fetchUrl(url);
+    } else if (data && name) {
+      sourceText = await extractText(data, name);
+    } else if (pastedText) {
+      sourceText = pastedText;
+    } else {
+      return res.status(400).json({ error: "Missing text, file or URL" });
+    }
+
     const prompt = `From the following document, extract: ${query}
 
 Present the extracted information clearly and completely. Use plain text with line breaks to separate items.
 Do not include any introduction or explanation — just the extracted content.
 
 DOCUMENT:
-${text.slice(0, 50000)}`;
+${sourceText.slice(0, 50000)}`;
 
     const extracted = await callGemini(apiKey, prompt, 3000);
 
@@ -161,16 +177,18 @@ app.post("/translate", async (req, res) => {
   try {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return res.status(500).json({ error: "GEMINI_API_KEY not set" });
-    const { data, name, text: pastedText, targetLanguage, format } = req.body;
+    const { data, name, url, text: pastedText, targetLanguage, format } = req.body;
     if (!targetLanguage) return res.status(400).json({ error: "Missing target language" });
 
     let sourceText = "";
-    if (data && name) {
+    if (url) {
+      sourceText = await fetchUrl(url);
+    } else if (data && name) {
       sourceText = await extractText(data, name);
     } else if (pastedText) {
       sourceText = pastedText;
     } else {
-      return res.status(400).json({ error: "Missing text or file" });
+      return res.status(400).json({ error: "Missing text, file or URL" });
     }
 
     const prompt = `Translate the following document to ${targetLanguage}. Preserve the original formatting and structure as much as possible. Output only the translated text, nothing else.
@@ -195,4 +213,4 @@ ${sourceText.slice(0, 50000)}`;
   }
 });
 
-app.listen(PORT, () => console.log(`DocBrief v9.0 running on port ${PORT}`));
+app.listen(PORT, () => console.log(`DocBrief v10.0 running on port ${PORT}`));
