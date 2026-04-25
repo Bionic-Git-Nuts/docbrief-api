@@ -239,7 +239,6 @@
   let selectedFile = null;
   let lastSummary = "";
 
-  // History
   function getHistory() {
     try { return JSON.parse(localStorage.getItem('docbrief_history') || '[]'); } catch { return []; }
   }
@@ -292,8 +291,6 @@
     document.getElementById('history-screen').style.display = 'none';
     document.getElementById('main-screen').style.display = 'block';
   }
-
-  // UI helpers
   function switchTab(tab, btn) {
     currentTab = tab;
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -333,41 +330,51 @@
     show('loading');
   }
 
-  // Read file into base64 immediately on selection
-  document.getElementById('file-input').addEventListener('change', function() {
+  // File selection — use arrayBuffer() which works best on modern iOS
+  document.getElementById('file-input').addEventListener('change', async function() {
     const f = this.files[0];
     if (!f) return;
     const name = f.name;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const base64 = e.target.result.split(',')[1];
+    try {
+      const buffer = await f.arrayBuffer();
+      const bytes = new Uint8Array(buffer);
+      let binary = '';
+      const chunkSize = 8192;
+      for (let i = 0; i < bytes.length; i += chunkSize) {
+        binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+      }
+      const base64 = btoa(binary);
       selectedFile = { name, base64 };
       document.getElementById('file-chip-name').textContent = name;
       document.getElementById('file-chip-icon').textContent = getFileIcon(name);
       document.getElementById('file-chip').style.display = 'flex';
-    };
-    reader.onerror = () => showError("Could not read file. Please try again.");
-    reader.readAsArrayBuffer(f);
+    } catch(e) {
+      showError("Could not read file: " + e.message);
+    }
   });
 
   const dz = document.getElementById('drop-zone');
   dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
   dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
-  dz.addEventListener('drop', e => {
+  dz.addEventListener('drop', async e => {
     e.preventDefault(); dz.classList.remove('drag-over');
     const f = e.dataTransfer.files[0]; if (!f) return;
     const name = f.name;
-    const reader = new FileReader();
-    reader.onload = function(ev) {
-      const bytes = new Uint8Array(ev.target.result);
+    try {
+      const buffer = await f.arrayBuffer();
+      const bytes = new Uint8Array(buffer);
       let binary = '';
-      for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+      const chunkSize = 8192;
+      for (let i = 0; i < bytes.length; i += chunkSize) {
+        binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+      }
       selectedFile = { name, base64: btoa(binary) };
       document.getElementById('file-chip-name').textContent = name;
       document.getElementById('file-chip-icon').textContent = getFileIcon(name);
       document.getElementById('file-chip').style.display = 'flex';
-    };
-    reader.readAsDataURL(f);
+    } catch(e) {
+      showError("Could not read file: " + e.message);
+    }
   });
 
   async function handleSubmit() {
@@ -401,7 +408,7 @@
 
     } else {
       if (!selectedFile) { showError("Please select a file."); return; }
-      if (!selectedFile.base64) { showError("File not ready yet. Please wait a moment and try again."); return; }
+      if (!selectedFile.base64) { showError("File still loading, please wait a moment and try again."); return; }
       source = selectedFile.name;
       setLoading("Extracting document text…", "Please wait");
 
