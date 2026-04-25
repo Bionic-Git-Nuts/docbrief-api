@@ -28,7 +28,8 @@
   .container { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; padding: 52px 20px 100px; }
   .logo-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; animation: fadeUp 0.5s ease both; }
   .logo-left { display: flex; align-items: center; gap: 11px; }
-  .logo-icon { width: 34px; height: 34px; background: linear-gradient(135deg, var(--accent), var(--accent-deep)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+  .logo-icon { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .logo-icon img { width: 36px; height: 36px; border-radius: 8px; object-fit: cover; }
   .logo-text { font-size: 13px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim); }
   .top-btns { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
   .top-btn { border-radius: 8px; padding: 7px 11px; font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.15s; letter-spacing: 0.04em; border: 1px solid; }
@@ -145,8 +146,8 @@
   <div id="main-screen">
     <div class="logo-row">
       <div class="logo-left">
-        <div class="logo-icon"><img src="/IMG_7511.webp" style="width:28px;height:28px;border-radius:6px;object-fit:cover"></div>
-        <span class="logo-text">Accipiter</span>
+        <div class="logo-icon"><img src="/Owl-logo.png" alt="DocBrief"></div>
+        <span class="logo-text">DocBrief</span>
       </div>
       <div class="top-btns">
         <button class="top-btn top-btn-translate" onclick="showScreen('translate')">⟳ Translate</button>
@@ -258,7 +259,10 @@
   <!-- Extract screen -->
   <div id="extract-screen" style="display:none">
     <div class="logo-row">
-      <div class="logo-icon"><img src="/IMG_7511.webp" style="width:28px;height:28px;border-radius:6px;object-fit:cover"></div>
+      <div class="logo-left">
+        <div class="logo-icon"><img src="/Owl-logo.png" alt="DocBrief"></div>
+        <span class="logo-text">DocBrief</span>
+      </div>
     </div>
     <button class="back-btn" onclick="showScreen('main')">← Back</button>
     <div class="card">
@@ -302,7 +306,6 @@
     </div>
     <div id="extract-error" class="error-msg" style="display:none"></div>
     <button class="submit-btn btn-green" onclick="handleExtract()">⬡ Extract Content</button>
-
     <div id="extract-loading" style="display:none;margin-top:20px">
       <div class="loading">
         <div class="spinner"></div>
@@ -310,7 +313,6 @@
         <div class="loading-sub">Finding what you need</div>
       </div>
     </div>
-
     <div id="extract-result" style="display:none;margin-top:20px">
       <div class="result">
         <div class="result-header">
@@ -329,7 +331,10 @@
   <!-- Translate screen -->
   <div id="translate-screen" style="display:none">
     <div class="logo-row">
-      <div class="logo-icon"><img src="/IMG_7511.webp" style="width:28px;height:28px;border-radius:6px;object-fit:cover"></div>
+      <div class="logo-left">
+        <div class="logo-icon"><img src="/Owl-logo.png" alt="DocBrief"></div>
+        <span class="logo-text">DocBrief</span>
+      </div>
     </div>
     <button class="back-btn" onclick="showScreen('main')">← Back</button>
     <div class="card">
@@ -392,7 +397,6 @@
     </div>
     <div id="translate-error" class="error-msg" style="display:none"></div>
     <button class="submit-btn btn-purple" onclick="handleTranslate()">⟳ Translate Document</button>
-
     <div id="translate-loading" style="display:none;margin-top:20px">
       <div class="loading">
         <div class="spinner"></div>
@@ -400,7 +404,6 @@
         <div class="loading-sub">This may take a moment</div>
       </div>
     </div>
-
     <div id="translate-result" style="display:none;margin-top:20px">
       <div class="result">
         <div class="result-header">
@@ -419,7 +422,10 @@
   <!-- Compare screen -->
   <div id="compare-screen" style="display:none">
     <div class="logo-row">
-      <div class="logo-icon"><img src="/IMG_7511.webp" style="width:28px;height:28px;border-radius:6px;object-fit:cover"></div>
+      <div class="logo-left">
+        <div class="logo-icon"><img src="/Owl-logo.png" alt="DocBrief"></div>
+        <span class="logo-text">DocBrief</span>
+      </div>
     </div>
     <button class="back-btn" onclick="showScreen('main')">← Back</button>
     <div id="compare-input">
@@ -471,7 +477,10 @@
   <!-- History screen -->
   <div id="history-screen" style="display:none">
     <div class="logo-row">
-      <div class="logo-icon"><img src="/IMG_7511.webp" style="width:28px;height:28px;border-radius:6px;object-fit:cover"></div>
+      <div class="logo-left">
+        <div class="logo-icon"><img src="/Owl-logo.png" alt="DocBrief"></div>
+        <span class="logo-text">DocBrief</span>
+      </div>
     </div>
     <button class="back-btn" onclick="showScreen('main')">← Back</button>
     <div class="card-label">Recent summaries<span style="flex:1;height:1px;background:rgba(255,255,255,0.05);margin-left:8px;display:inline-block;vertical-align:middle"></span></div>
@@ -506,7 +515,6 @@
     if (name === 'history') renderHistory();
   }
 
-  // History
   function getHistory() {
     try { return JSON.parse(localStorage.getItem('docbrief_history') || '[]'); } catch { return []; }
   }
@@ -551,7 +559,6 @@
     show('result');
   }
 
-  // Tab switching
   function switchTab(tab, btn) {
     currentTab = tab;
     btn.closest('.tabs').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -676,7 +683,6 @@
     document.getElementById('slot2').classList.add('has-file');
   }, (msg) => { document.getElementById('compare-error').textContent = "⚠ " + msg; document.getElementById('compare-error').style.display = 'block'; });
 
-  // Summarize
   async function handleSubmit() {
     document.getElementById('error-msg').style.display = 'none';
     const language = document.getElementById('language-select').value;
@@ -748,7 +754,6 @@
     show('result');
   }
 
-  // Extract
   async function handleExtract() {
     const errEl = document.getElementById('extract-error');
     errEl.style.display = 'none';
@@ -756,26 +761,21 @@
     if (!query) { errEl.textContent = "⚠ Please describe what to extract."; errEl.style.display = 'block'; return; }
 
     let body = { query, format: extractFormat };
-
     if (extractTab === 'file') {
       if (!extractFile) { errEl.textContent = "⚠ Please select a file."; errEl.style.display = 'block'; return; }
-      body.data = extractFile.base64;
-      body.name = extractFile.name;
+      body.data = extractFile.base64; body.name = extractFile.name;
     } else if (extractTab === 'url') {
       const u = document.getElementById('extract-url-input').value.trim();
       if (!u) { errEl.textContent = "⚠ Please enter a URL."; errEl.style.display = 'block'; return; }
       body.url = u;
-      body.name = 'url-content.txt';
     } else {
       const t = document.getElementById('extract-text-input').value.trim();
       if (t.length < 10) { errEl.textContent = "⚠ Please paste some text."; errEl.style.display = 'block'; return; }
       body.text = t;
-      body.name = 'pasted-text.txt';
     }
 
     document.getElementById('extract-loading').style.display = 'block';
     document.getElementById('extract-result').style.display = 'none';
-
     try {
       const resp = await fetch(`${BACKEND}/extract`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       if (!resp.ok) { const err = await resp.json(); throw new Error(err.error || "HTTP " + resp.status); }
@@ -783,7 +783,7 @@
       const url = URL.createObjectURL(blob);
       const text = extractFormat === 'txt' ? await blob.text() : '';
       document.getElementById('extract-preview').textContent = extractFormat === 'txt' ? text.slice(0, 1000) + (text.length > 1000 ? '…' : '') : 'Your .docx file is ready to download.';
-      document.getElementById('extract-result-meta').textContent = (body.name || 'document') + ' · ' + query;
+      document.getElementById('extract-result-meta').textContent = query;
       const link = document.getElementById('extract-download-link');
       link.href = url; link.download = `extracted.${extractFormat}`; link.style.display = 'inline-flex';
       document.getElementById('extract-loading').style.display = 'none';
@@ -794,7 +794,6 @@
     }
   }
 
-  // Translate
   async function handleTranslate() {
     const errEl = document.getElementById('translate-error');
     errEl.style.display = 'none';
@@ -809,16 +808,13 @@
       const u = document.getElementById('translate-url-input').value.trim();
       if (!u) { errEl.textContent = "⚠ Please enter a URL."; errEl.style.display = 'block'; return; }
       body.url = u;
-      body.name = 'url-content.txt';
     } else {
       if (!translateFile) { errEl.textContent = "⚠ Please select a file."; errEl.style.display = 'block'; return; }
-      body.data = translateFile.base64;
-      body.name = translateFile.name;
+      body.data = translateFile.base64; body.name = translateFile.name;
     }
 
     document.getElementById('translate-loading').style.display = 'block';
     document.getElementById('translate-result').style.display = 'none';
-
     try {
       const resp = await fetch(`${BACKEND}/translate`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       if (!resp.ok) { const err = await resp.json(); throw new Error(err.error || "HTTP " + resp.status); }
@@ -837,7 +833,6 @@
     }
   }
 
-  // Compare
   async function handleCompare() {
     const errEl = document.getElementById('compare-error');
     errEl.style.display = 'none';
