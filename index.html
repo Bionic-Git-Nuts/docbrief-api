@@ -86,8 +86,6 @@
   .error-msg { background: rgba(255,80,80,0.07); border: 1px solid rgba(255,80,80,0.2); border-radius: 10px; padding: 13px 15px; font-size: 13px; color: rgba(255,160,160,0.9); font-family: 'JetBrains Mono', monospace; margin-top: 12px; word-break: break-word; }
   .panel { display: none; }
   .panel.active { display: block; }
-
-  /* History */
   .history-section { animation: fadeUp 0.4s ease both; }
   .history-empty { text-align: center; padding: 48px 20px; color: var(--text-muted); font-size: 14px; }
   .history-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 12px; cursor: pointer; transition: border-color 0.15s; }
@@ -107,7 +105,6 @@
 <body>
 <div class="container">
 
-  <!-- Main screen -->
   <div id="main-screen">
     <div class="logo-row">
       <div class="logo-left">
@@ -216,7 +213,6 @@
     </div>
   </div>
 
-  <!-- History screen -->
   <div id="history-screen" style="display:none">
     <div class="logo-row">
       <div class="logo-left">
@@ -232,7 +228,6 @@
   </div>
 
 </div>
-
 <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js');
@@ -245,21 +240,13 @@
   let lastSummary = "";
   let lastSource = "";
 
-  // ── History helpers ──
   function getHistory() {
     try { return JSON.parse(localStorage.getItem('docbrief_history') || '[]'); } catch { return []; }
   }
 
   function saveToHistory(source, summary, language) {
     const history = getHistory();
-    history.unshift({
-      id: Date.now(),
-      source,
-      summary,
-      language,
-      date: new Date().toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' })
-    });
-    // Keep last 50
+    history.unshift({ id: Date.now(), source, summary, language, date: new Date().toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }) });
     if (history.length > 50) history.pop();
     localStorage.setItem('docbrief_history', JSON.stringify(history));
   }
@@ -286,16 +273,14 @@
     }
     el.innerHTML = history.map(h => {
       const preview = Array.isArray(h.summary) ? h.summary[0] : h.summary.slice(0, 120);
-      return `
-        <div class="history-item" onclick="openHistoryItem(${h.id})">
-          <div class="history-item-header">
-            <span class="history-item-source">${h.source}</span>
-            <span class="history-item-date">${h.date}</span>
-            <button class="history-item-delete" onclick="event.stopPropagation(); deleteHistoryItem(${h.id})">✕</button>
-          </div>
-          <div class="history-item-preview">${preview}…</div>
+      return `<div class="history-item" onclick="openHistoryItem(${h.id})">
+        <div class="history-item-header">
+          <span class="history-item-source">${h.source}</span>
+          <span class="history-item-date">${h.date}</span>
+          <button class="history-item-delete" onclick="event.stopPropagation(); deleteHistoryItem(${h.id})">✕</button>
         </div>
-      `;
+        <div class="history-item-preview">${preview}…</div>
+      </div>`;
     }).join('') + `<button class="history-clear-btn" onclick="clearHistory()">Clear all history</button>`;
   }
 
@@ -303,7 +288,6 @@
     const item = getHistory().find(h => h.id === id);
     if (!item) return;
     lastSummary = Array.isArray(item.summary) ? item.summary.join("\n• ") : item.summary;
-    lastSource = item.source;
     document.getElementById('result-meta').textContent = item.source + ' · ' + item.date + (item.language !== 'English' ? ' · ' + item.language : '');
     const body = document.getElementById('result-body');
     if (Array.isArray(item.summary)) {
@@ -326,7 +310,6 @@
     document.getElementById('main-screen').style.display = 'block';
   }
 
-  // ── App logic ──
   function switchTab(tab, btn) {
     currentTab = tab;
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -380,17 +363,14 @@
     errorEl.style.display = 'none';
 
     const language = document.getElementById('language-select').value;
-
     const lengthMap = {
       short:  "brief: 2-3 sentences or 3-4 bullet points",
       medium: "moderate: 1 paragraph or 6-8 bullet points",
       long:   "detailed: 2-3 paragraphs or 10-14 bullet points"
     };
-
     const formatInstr = opts.format === "bullets"
       ? 'Return ONLY a JSON array of bullet strings like ["Point one.", "Point two."]. No other text.'
       : 'Return ONLY a plain paragraph of text. No JSON, no markdown.';
-
     const langInstr = language !== 'English' ? `Write the summary in ${language}.` : '';
 
     let userContent = "";
@@ -402,16 +382,24 @@
         if (t.length < 20) { showError("Please paste more text."); return; }
         source = "Pasted text";
         userContent = `Summarize this document. Length: ${lengthMap[opts.length]}. ${langInstr} ${formatInstr}\n\nDOCUMENT:\n${t}`;
+
       } else if (currentTab === "url") {
         const u = document.getElementById('url-input').value.trim();
         if (!u) { showError("Please enter a URL."); return; }
         source = u;
         userContent = `Summarize the content at this URL: ${u}\nLength: ${lengthMap[opts.length]}. ${langInstr} ${formatInstr}`;
+
       } else {
         if (!selectedFile) { showError("Please select a file."); return; }
         source = selectedFile.name;
         const name = selectedFile.name.toLowerCase();
-        const needsServer = name.endsWith('.pdf') || name.endsWith('.doc') || name.endsWith('.docx');
+        const mime = selectedFile.type;
+
+        // Always send to server for binary formats
+        const needsServer = name.endsWith('.pdf') || name.endsWith('.doc') || name.endsWith('.docx')
+          || mime === 'application/pdf'
+          || mime === 'application/msword'
+          || mime === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 
         if (needsServer) {
           setLoading("Extracting document text…", "Please wait");
@@ -466,8 +454,6 @@
 
       lastSummary = Array.isArray(summary) ? summary.join("\n• ") : summary;
       lastSource = source;
-
-      // Save to history
       saveToHistory(source, summary, language);
 
       const words = lastSummary.split(/\s+/).length;
