@@ -340,12 +340,7 @@
     const name = f.name;
     const reader = new FileReader();
     reader.onload = function(e) {
-      const bytes = new Uint8Array(e.target.result);
-      let binary = '';
-      for (let i = 0; i < bytes.byteLength; i++) {
-        binary += String.fromCharCode(bytes[i]);
-      }
-      const base64 = btoa(binary);
+      const base64 = e.target.result.split(',')[1];
       selectedFile = { name, base64 };
       document.getElementById('file-chip-name').textContent = name;
       document.getElementById('file-chip-icon').textContent = getFileIcon(name);
