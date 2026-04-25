@@ -1,7 +1,7 @@
 {
   "name": "Accipiter",
   "short_name": "Accipiter",
-  "description": "Summarize any document instantly",
+  "description": "",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0c0c0f",
