@@ -1,6 +1,6 @@
 {
-  "name": "DocBrief",
-  "short_name": "DocBrief",
+  "name": "Accipiter",
+  "short_name": "Accipiter",
   "description": "Summarize any document instantly",
   "start_url": "/",
   "display": "standalone",
