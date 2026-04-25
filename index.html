@@ -373,7 +373,9 @@
       document.getElementById('file-chip-icon').textContent = getFileIcon(name);
       document.getElementById('file-chip').style.display = 'flex';
     } catch(e) {
-      showError("Could not read file: " + e.message);
+      showError("Could not read file. If using iCloud Drive, open the Files app, long press the file, tap 'Download Now', then try again.");
+    }
+
     }
   });
 
