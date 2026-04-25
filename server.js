@@ -3,6 +3,7 @@ const cors = require("cors");
 const path = require("path");
 const pdfParse = require("pdf-parse");
 const mammoth = require("mammoth");
+const { Document, Packer, Paragraph, TextRun, HeadingLevel } = require("docx");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -13,7 +14,7 @@ app.use(express.json({ limit: "100mb" }));
 app.use(express.static(path.join(__dirname)));
 
 app.get("/health", (req, res) => {
-  res.json({ status: "ok", version: "8.0", service: "DocBrief API", hasGeminiKey: !!process.env.GEMINI_API_KEY });
+  res.json({ status: "ok", version: "9.0", service: "DocBrief API", hasGeminiKey: !!process.env.GEMINI_API_KEY });
 });
 
 async function extractText(base64, name) {
@@ -32,6 +33,36 @@ async function extractText(base64, name) {
   return text.replace(/\s+/g, " ").trim();
 }
 
+async function callGemini(apiKey, prompt, maxTokens = 2000) {
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { maxOutputTokens: maxTokens }
+      }),
+    }
+  );
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error?.message || "Gemini error");
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+}
+
+async function buildDocx(title, content) {
+  const lines = content.split("\n").filter(l => l.trim());
+  const paragraphs = [
+    new Paragraph({ text: title, heading: HeadingLevel.HEADING_1 }),
+    new Paragraph({ text: "" }),
+    ...lines.map(line => new Paragraph({
+      children: [new TextRun({ text: line.trim(), size: 24 })]
+    }))
+  ];
+  const doc = new Document({ sections: [{ properties: {}, children: paragraphs }] });
+  return await Packer.toBuffer(doc);
+}
+
 app.post("/parse-file", async (req, res) => {
   try {
     const { data, name } = req.body;
@@ -43,17 +74,28 @@ app.post("/parse-file", async (req, res) => {
   }
 });
 
+app.post("/summarize", async (req, res) => {
+  try {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) return res.status(500).json({ error: "GEMINI_API_KEY not set" });
+    const { messages } = req.body;
+    if (!messages) return res.status(400).json({ error: "Missing messages" });
+    const userMessage = messages.find(m => m.role === "user")?.content || "";
+    const text = await callGemini(apiKey, userMessage, 1500);
+    res.json({ choices: [{ message: { content: text } }] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.post("/compare", async (req, res) => {
   try {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return res.status(500).json({ error: "GEMINI_API_KEY not set" });
-
     const { file1, file2 } = req.body;
     if (!file1 || !file2) return res.status(400).json({ error: "Missing files" });
-
     const text1 = await extractText(file1.data, file1.name);
     const text2 = await extractText(file2.data, file2.name);
-
     const prompt = `You are a document comparison expert. Compare these two documents and identify all key differences.
 
 Return ONLY a JSON object in this exact format, no other text:
@@ -69,66 +111,88 @@ Return ONLY a JSON object in this exact format, no other text:
   "similarity": 85
 }
 
-similarity is a number 0-100 representing how similar the documents are.
-
 DOCUMENT 1 (${file1.name}):
 ${text1.slice(0, 15000)}
 
 DOCUMENT 2 (${file2.name}):
 ${text2.slice(0, 15000)}`;
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { maxOutputTokens: 2000 }
-        }),
-      }
-    );
-
-    const data = await response.json();
-    if (!response.ok) return res.status(response.status).json({ error: data.error?.message || "Gemini error" });
-
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-    res.json({ result: text });
+    const result = await callGemini(apiKey, prompt, 2000);
+    res.json({ result });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-app.post("/summarize", async (req, res) => {
+app.post("/extract", async (req, res) => {
   try {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return res.status(500).json({ error: "GEMINI_API_KEY not set" });
+    const { data, name, query, format } = req.body;
+    if (!data || !name || !query) return res.status(400).json({ error: "Missing fields" });
 
-    const { messages } = req.body;
-    if (!messages) return res.status(400).json({ error: "Missing messages" });
+    const text = await extractText(data, name);
+    const prompt = `From the following document, extract: ${query}
 
-    const userMessage = messages.find(m => m.role === "user")?.content || "";
+Present the extracted information clearly and completely. Use plain text with line breaks to separate items.
+Do not include any introduction or explanation — just the extracted content.
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: userMessage }] }],
-          generationConfig: { maxOutputTokens: 1500 }
-        }),
-      }
-    );
+DOCUMENT:
+${text.slice(0, 50000)}`;
 
-    const data = await response.json();
-    if (!response.ok) return res.status(response.status).json({ error: data.error?.message || "Gemini error" });
+    const extracted = await callGemini(apiKey, prompt, 3000);
 
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-    res.json({ choices: [{ message: { content: text } }] });
+    if (format === "txt") {
+      res.setHeader("Content-Type", "text/plain");
+      res.setHeader("Content-Disposition", `attachment; filename="extracted.txt"`);
+      res.send(extracted);
+    } else {
+      const buffer = await buildDocx(`Extracted: ${query}`, extracted);
+      res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+      res.setHeader("Content-Disposition", `attachment; filename="extracted.docx"`);
+      res.send(buffer);
+    }
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-app.listen(PORT, () => console.log(`DocBrief v8.0 running on port ${PORT}`));
+app.post("/translate", async (req, res) => {
+  try {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) return res.status(500).json({ error: "GEMINI_API_KEY not set" });
+    const { data, name, text: pastedText, targetLanguage, format } = req.body;
+    if (!targetLanguage) return res.status(400).json({ error: "Missing target language" });
+
+    let sourceText = "";
+    if (data && name) {
+      sourceText = await extractText(data, name);
+    } else if (pastedText) {
+      sourceText = pastedText;
+    } else {
+      return res.status(400).json({ error: "Missing text or file" });
+    }
+
+    const prompt = `Translate the following document to ${targetLanguage}. Preserve the original formatting and structure as much as possible. Output only the translated text, nothing else.
+
+DOCUMENT:
+${sourceText.slice(0, 50000)}`;
+
+    const translated = await callGemini(apiKey, prompt, 4000);
+
+    if (format === "txt") {
+      res.setHeader("Content-Type", "text/plain");
+      res.setHeader("Content-Disposition", `attachment; filename="translated_${targetLanguage}.txt"`);
+      res.send(translated);
+    } else {
+      const buffer = await buildDocx(`Translation (${targetLanguage})`, translated);
+      res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+      res.setHeader("Content-Disposition", `attachment; filename="translated_${targetLanguage}.docx"`);
+      res.send(buffer);
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.listen(PORT, () => console.log(`DocBrief v9.0 running on port ${PORT}`));
