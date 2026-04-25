@@ -411,8 +411,17 @@
           if (!parseResp.ok || parseData.error) throw new Error(parseData.error || "File extraction failed");
           userContent = `Summarize this document. Length: ${lengthMap[opts.length]}. ${langInstr} ${formatInstr}\n\nDOCUMENT:\n${parseData.text}`;
         } else {
-          const text = await selectedFile.text();
-          userContent = `Summarize this document. Length: ${lengthMap[opts.length]}. ${langInstr} ${formatInstr}\n\nDOCUMENT:\n${text}`;
+          // Send all files to server to avoid iOS Safari file reading issues
+          setLoading("Extracting document text…", "Please wait");
+          show('loading');
+          const formData = new FormData();
+          formData.append("file", selectedFile);
+          const parseResp = await fetch(`${BACKEND}/parse-file`, { method: "POST", body: formData });
+          const parseData = await parseResp.json();
+          if (!parseResp.ok || parseData.error) throw new Error(parseData.error || "File extraction failed");
+          userContent = `Summarize this document. Length: ${lengthMap[opts.length]}. ${langInstr} ${formatInstr}\n\nDOCUMENT:\n${parseData.text}`;
+        }
+
         }
       }
     } catch(e) {
