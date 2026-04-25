@@ -73,12 +73,17 @@ app.post("/parse-file", async (req, res) => {
   try {
     const { data, name } = req.body;
     if (!data || !name) return res.status(400).json({ error: "Missing file data" });
-    const text = await extractText(data, name);
+    let text = await extractText(data, name);
+    // Limit to 30000 chars to stay within Gemini limits
+    if (text.length > 30000) {
+      text = text.slice(0, 30000) + " [Document truncated]";
+    }
     res.json({ text });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 app.post("/summarize", async (req, res) => {
   try {
