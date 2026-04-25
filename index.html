@@ -319,10 +319,27 @@
   }
   document.getElementById('file-input').addEventListener('change', function() {
     const f = this.files[0]; if (!f) return;
-    selectedFile = f;
-    document.getElementById('file-chip-name').textContent = f.name;
-    document.getElementById('file-chip-icon').textContent = getFileIcon(f.name);
-    document.getElementById('file-chip').style.display = 'flex';
+    const name = f.name;
+    const type = f.type;
+    // Read file into ArrayBuffer immediately to prevent iOS Safari file loss
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      selectedFile = {
+        name: name,
+        type: type,
+        buffer: e.target.result,
+        blob: new Blob([e.target.result], { type: type })
+      };
+      document.getElementById('file-chip-name').textContent = name;
+      document.getElementById('file-chip-icon').textContent = getFileIcon(name);
+      document.getElementById('file-chip').style.display = 'flex';
+    };
+    reader.onerror = function() {
+      showError("Could not read file. Please try again.");
+    };
+    reader.readAsArrayBuffer(f);
+  });
+
   });
   const dz = document.getElementById('drop-zone');
   dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
