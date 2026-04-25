@@ -238,78 +238,63 @@
   let opts = { format: "bullets", length: "medium" };
   let selectedFile = null;
   let lastSummary = "";
-  let lastSource = "";
 
+  // History
   function getHistory() {
     try { return JSON.parse(localStorage.getItem('docbrief_history') || '[]'); } catch { return []; }
   }
-
   function saveToHistory(source, summary, language) {
-    const history = getHistory();
-    history.unshift({ id: Date.now(), source, summary, language, date: new Date().toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }) });
-    if (history.length > 50) history.pop();
-    localStorage.setItem('docbrief_history', JSON.stringify(history));
+    const h = getHistory();
+    h.unshift({ id: Date.now(), source, summary, language, date: new Date().toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }) });
+    if (h.length > 50) h.pop();
+    localStorage.setItem('docbrief_history', JSON.stringify(h));
   }
-
   function deleteHistoryItem(id) {
-    const history = getHistory().filter(h => h.id !== id);
-    localStorage.setItem('docbrief_history', JSON.stringify(history));
+    localStorage.setItem('docbrief_history', JSON.stringify(getHistory().filter(h => h.id !== id)));
     renderHistory();
   }
-
   function clearHistory() {
-    if (confirm('Clear all history?')) {
-      localStorage.removeItem('docbrief_history');
-      renderHistory();
-    }
+    if (confirm('Clear all history?')) { localStorage.removeItem('docbrief_history'); renderHistory(); }
   }
-
   function renderHistory() {
     const history = getHistory();
     const el = document.getElementById('history-list');
-    if (!history.length) {
-      el.innerHTML = '<div class="history-empty">No summaries yet.<br>Summarize a document to see it here.</div>';
-      return;
-    }
+    if (!history.length) { el.innerHTML = '<div class="history-empty">No summaries yet.<br>Summarize a document to see it here.</div>'; return; }
     el.innerHTML = history.map(h => {
       const preview = Array.isArray(h.summary) ? h.summary[0] : h.summary.slice(0, 120);
       return `<div class="history-item" onclick="openHistoryItem(${h.id})">
         <div class="history-item-header">
           <span class="history-item-source">${h.source}</span>
           <span class="history-item-date">${h.date}</span>
-          <button class="history-item-delete" onclick="event.stopPropagation(); deleteHistoryItem(${h.id})">✕</button>
+          <button class="history-item-delete" onclick="event.stopPropagation();deleteHistoryItem(${h.id})">✕</button>
         </div>
         <div class="history-item-preview">${preview}…</div>
       </div>`;
     }).join('') + `<button class="history-clear-btn" onclick="clearHistory()">Clear all history</button>`;
   }
-
   function openHistoryItem(id) {
     const item = getHistory().find(h => h.id === id);
     if (!item) return;
     lastSummary = Array.isArray(item.summary) ? item.summary.join("\n• ") : item.summary;
     document.getElementById('result-meta').textContent = item.source + ' · ' + item.date + (item.language !== 'English' ? ' · ' + item.language : '');
     const body = document.getElementById('result-body');
-    if (Array.isArray(item.summary)) {
-      body.innerHTML = "<ul>" + item.summary.map(p => `<li>${p}</li>`).join("") + "</ul>";
-    } else {
-      body.innerHTML = "<p>" + item.summary + "</p>";
-    }
+    body.innerHTML = Array.isArray(item.summary)
+      ? "<ul>" + item.summary.map(p => `<li>${p}</li>`).join("") + "</ul>"
+      : "<p>" + item.summary + "</p>";
     showMain();
     show('result');
   }
-
   function showHistory() {
     document.getElementById('main-screen').style.display = 'none';
     document.getElementById('history-screen').style.display = 'block';
     renderHistory();
   }
-
   function showMain() {
     document.getElementById('history-screen').style.display = 'none';
     document.getElementById('main-screen').style.display = 'block';
   }
 
+  // UI
   function switchTab(tab, btn) {
     currentTab = tab;
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -317,52 +302,63 @@
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
     document.getElementById('panel-' + tab).classList.add('active');
   }
-
   function setOpt(key, val, btn) {
     opts[key] = val;
     btn.closest('.opt-group').querySelectorAll('.opt-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
   }
-
   function clearFile() {
     selectedFile = null;
     document.getElementById('file-chip').style.display = 'none';
     document.getElementById('file-input').value = '';
   }
-
   function getFileIcon(name) {
     if (name.endsWith('.pdf')) return '📕';
     if (name.endsWith('.doc') || name.endsWith('.docx')) return '📘';
     return '📄';
   }
-
   document.getElementById('file-input').addEventListener('change', function() {
-    const f = this.files[0];
-    if (!f) return;
+    const f = this.files[0]; if (!f) return;
     selectedFile = f;
     document.getElementById('file-chip-name').textContent = f.name;
     document.getElementById('file-chip-icon').textContent = getFileIcon(f.name);
     document.getElementById('file-chip').style.display = 'flex';
   });
-
   const dz = document.getElementById('drop-zone');
   dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
   dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
   dz.addEventListener('drop', e => {
     e.preventDefault(); dz.classList.remove('drag-over');
-    const f = e.dataTransfer.files[0];
-    if (!f) return;
+    const f = e.dataTransfer.files[0]; if (!f) return;
     selectedFile = f;
     document.getElementById('file-chip-name').textContent = f.name;
     document.getElementById('file-chip-icon').textContent = getFileIcon(f.name);
     document.getElementById('file-chip').style.display = 'flex';
   });
 
+  function show(section) {
+    document.getElementById('input-section').style.display   = section === 'input'   ? 'block' : 'none';
+    document.getElementById('loading-section').style.display = section === 'loading' ? 'block' : 'none';
+    document.getElementById('result-section').style.display  = section === 'result'  ? 'block' : 'none';
+  }
+  function showError(msg) {
+    show('input');
+    const el = document.getElementById('error-msg');
+    el.textContent = "⚠ " + msg;
+    el.style.display = 'block';
+  }
+  function setLoading(title, sub) {
+    document.getElementById('loading-title').textContent = title;
+    document.getElementById('loading-sub').textContent = sub;
+    show('loading');
+  }
+
+  // Main submit — fully separated into steps, no nested try/catch
   async function handleSubmit() {
-    const errorEl = document.getElementById('error-msg');
-    errorEl.style.display = 'none';
+    document.getElementById('error-msg').style.display = 'none';
 
     const language = document.getElementById('language-select').value;
+    const langInstr = language !== 'English' ? `Write the summary in ${language}.` : '';
     const lengthMap = {
       short:  "brief: 2-3 sentences or 3-4 bullet points",
       medium: "moderate: 1 paragraph or 6-8 bullet points",
@@ -371,122 +367,96 @@
     const formatInstr = opts.format === "bullets"
       ? 'Return ONLY a JSON array of bullet strings like ["Point one.", "Point two."]. No other text.'
       : 'Return ONLY a plain paragraph of text. No JSON, no markdown.';
-    const langInstr = language !== 'English' ? `Write the summary in ${language}.` : '';
 
+    // Step 1: get document text
     let userContent = "";
     let source = "";
 
-    try {
-      if (currentTab === "text") {
-        const t = document.getElementById('text-input').value.trim();
-        if (t.length < 20) { showError("Please paste more text."); return; }
-        source = "Pasted text";
-        userContent = `Summarize this document. Length: ${lengthMap[opts.length]}. ${langInstr} ${formatInstr}\n\nDOCUMENT:\n${t}`;
+    if (currentTab === "text") {
+      const t = document.getElementById('text-input').value.trim();
+      if (t.length < 20) { showError("Please paste more text."); return; }
+      source = "Pasted text";
+      userContent = `Summarize this document. Length: ${lengthMap[opts.length]}. ${langInstr} ${formatInstr}\n\nDOCUMENT:\n${t}`;
 
-      } else if (currentTab === "url") {
-        const u = document.getElementById('url-input').value.trim();
-        if (!u) { showError("Please enter a URL."); return; }
-        source = u;
-        userContent = `Summarize the content at this URL: ${u}\nLength: ${lengthMap[opts.length]}. ${langInstr} ${formatInstr}`;
+    } else if (currentTab === "url") {
+      const u = document.getElementById('url-input').value.trim();
+      if (!u) { showError("Please enter a URL."); return; }
+      source = u;
+      userContent = `Summarize the content at this URL: ${u}\nLength: ${lengthMap[opts.length]}. ${langInstr} ${formatInstr}`;
 
-      } else {
-        if (!selectedFile) { showError("Please select a file."); return; }
-        source = selectedFile.name;
-        setLoading("Extracting document text…", "Please wait");
-        show('loading');
+    } else {
+      if (!selectedFile) { showError("Please select a file."); return; }
+      source = selectedFile.name;
+      setLoading("Extracting document text…", "Please wait");
+
+      let parseResp, parseData;
+      try {
         const formData = new FormData();
         formData.append("file", selectedFile);
-        let parseResp, parseData;
-        try {
-          parseResp = await fetch(`${BACKEND}/parse-file`, { method: "POST", body: formData });
-          parseData = await parseResp.json();
-        } catch(fetchErr) {
-          show('input');
-          showError("Upload failed: " + fetchErr.message);
-          return;
-        }
-        if (!parseResp.ok || parseData.error) {
-          show('input');
-          showError("File extraction failed: " + (parseData.error || "HTTP " + parseResp.status));
-          return;
-        }
-        userContent = `Summarize this document. Length: ${lengthMap[opts.length]}. ${langInstr} ${formatInstr}\n\nDOCUMENT:\n${parseData.text}`;
+        parseResp = await fetch(`${BACKEND}/parse-file`, { method: "POST", body: formData });
+        parseData = await parseResp.json();
+      } catch(e) {
+        showError("Upload failed: " + e.message); return;
       }
-    } catch(e) {
-      show('input');
-      showError("Could not read file: " + e.message);
-      return;
+      if (!parseResp.ok || parseData.error) {
+        showError("File error: " + (parseData?.error || "HTTP " + parseResp.status)); return;
+      }
+      if (!parseData.text || parseData.text.trim().length < 10) {
+        showError("Could not extract text from this file."); return;
+      }
+      userContent = `Summarize this document. Length: ${lengthMap[opts.length]}. ${langInstr} ${formatInstr}\n\nDOCUMENT:\n${parseData.text}`;
     }
 
-    }
-
+    // Step 2: summarize
     setLoading("Reading your document…", "Extracting key insights");
-    show('loading');
 
+    let resp, data;
     try {
-      const resp = await fetch(`${BACKEND}/summarize`, {
+      resp = await fetch(`${BACKEND}/summarize`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: [{ role: "user", content: userContent }] })
       });
-
-      const data = await resp.json();
-      if (!resp.ok || data.error) throw new Error(data.error?.message || "HTTP " + resp.status + " — " + JSON.stringify(data).slice(0, 300));
-      if (!data.choices) throw new Error("No choices in response — " + JSON.stringify(data).slice(0, 300));
-
-      const raw = data.choices?.[0]?.message?.content?.trim() || "";
-      if (!raw) throw new Error("Empty response from API");
-
-      let summary;
-      if (opts.format === "bullets") {
-        try {
-          const clean = raw.replace(/^```[\w]*\n?/, "").replace(/\n?```$/, "").trim();
-          const parsed = JSON.parse(clean);
-          summary = Array.isArray(parsed) ? parsed : [raw];
-        } catch {
-          summary = raw.split("\n").map(s => s.replace(/^[-•*▸\d.]+\s*/, "").trim()).filter(s => s.length > 8);
-          if (!summary.length) summary = [raw];
-        }
-      } else {
-        summary = raw;
-      }
-
-      lastSummary = Array.isArray(summary) ? summary.join("\n• ") : summary;
-      lastSource = source;
-      saveToHistory(source, summary, language);
-
-      const words = lastSummary.split(/\s+/).length;
-      document.getElementById('result-meta').textContent = source + " · ~" + words + " words" + (language !== 'English' ? ' · ' + language : '');
-
-      const body = document.getElementById('result-body');
-      if (Array.isArray(summary)) {
-        body.innerHTML = "<ul>" + summary.map(p => `<li>${p}</li>`).join("") + "</ul>";
-      } else {
-        body.innerHTML = "<p>" + summary + "</p>";
-      }
-
-      show('result');
+      data = await resp.json();
     } catch(e) {
-      show('input');
-      showError("Something went wrong: " + e.message);
+      showError("Network error: " + e.message); return;
     }
-  }
 
-  function setLoading(title, sub) {
-    document.getElementById('loading-title').textContent = title;
-    document.getElementById('loading-sub').textContent = sub;
-  }
+    if (!resp.ok || data.error) {
+      showError(data.error?.message || "HTTP " + resp.status + " — " + JSON.stringify(data).slice(0, 200)); return;
+    }
+    if (!data.choices) {
+      showError("Unexpected response: " + JSON.stringify(data).slice(0, 200)); return;
+    }
 
-  function show(section) {
-    document.getElementById('input-section').style.display   = section === 'input'   ? 'block' : 'none';
-    document.getElementById('loading-section').style.display = section === 'loading' ? 'block' : 'none';
-    document.getElementById('result-section').style.display  = section === 'result'  ? 'block' : 'none';
-  }
+    const raw = data.choices?.[0]?.message?.content?.trim() || "";
+    if (!raw) { showError("Empty response from AI."); return; }
 
-  function showError(msg) {
-    const el = document.getElementById('error-msg');
-    el.textContent = "⚠ " + msg;
-    el.style.display = 'block';
+    // Step 3: parse summary
+    let summary;
+    if (opts.format === "bullets") {
+      try {
+        const clean = raw.replace(/^```[\w]*\n?/, "").replace(/\n?```$/, "").trim();
+        const parsed = JSON.parse(clean);
+        summary = Array.isArray(parsed) ? parsed : [raw];
+      } catch {
+        summary = raw.split("\n").map(s => s.replace(/^[-•*▸\d.]+\s*/, "").trim()).filter(s => s.length > 8);
+        if (!summary.length) summary = [raw];
+      }
+    } else {
+      summary = raw;
+    }
+
+    lastSummary = Array.isArray(summary) ? summary.join("\n• ") : summary;
+    saveToHistory(source, summary, language);
+
+    const words = lastSummary.split(/\s+/).length;
+    document.getElementById('result-meta').textContent = source + " · ~" + words + " words" + (language !== 'English' ? ' · ' + language : '');
+    document.getElementById('result-body').innerHTML = Array.isArray(summary)
+      ? "<ul>" + summary.map(p => `<li>${p}</li>`).join("") + "</ul>"
+      : "<p>" + summary + "</p>";
+
+    show('result');
   }
 
   function copyResult() {
