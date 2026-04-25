@@ -18,6 +18,7 @@
     --text: #e8e6e0; --text-dim: rgba(232,230,224,0.45); --text-muted: rgba(232,230,224,0.25);
     --accent: #ff9a3c; --accent-deep: #ff5f1f; --accent-bg: rgba(255,154,60,0.10);
     --accent-border: rgba(255,154,60,0.25); --radius: 12px;
+    --blue: #4a9eff; --blue-bg: rgba(74,158,255,0.10); --blue-border: rgba(74,158,255,0.25);
   }
   html, body { min-height: 100vh; background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; -webkit-font-smoothing: antialiased; }
   body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px); background-size: 48px 48px; pointer-events: none; z-index: 0; }
@@ -27,8 +28,11 @@
   .logo-left { display: flex; align-items: center; gap: 11px; }
   .logo-icon { width: 34px; height: 34px; background: linear-gradient(135deg, var(--accent), var(--accent-deep)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
   .logo-text { font-size: 13px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim); }
+  .top-btns { display: flex; gap: 8px; }
   .history-btn { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; padding: 7px 13px; color: var(--text-dim); font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; letter-spacing: 0.04em; }
   .history-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
+  .compare-top-btn { background: var(--blue-bg); border: 1px solid var(--blue-border); border-radius: 8px; padding: 7px 13px; color: var(--blue); font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; letter-spacing: 0.04em; }
+  .compare-top-btn:hover { opacity: 0.8; }
   h1 { font-family: 'Instrument Serif', serif; font-size: clamp(34px, 7vw, 52px); font-weight: 400; line-height: 1.08; color: #f0ede6; margin-bottom: 14px; animation: fadeUp 0.5s 0.08s ease both; }
   h1 em { font-style: italic; color: var(--accent); }
   .subhead { font-size: 15px; color: var(--text-dim); line-height: 1.65; margin-bottom: 48px; animation: fadeUp 0.5s 0.16s ease both; }
@@ -44,14 +48,16 @@
   textarea { min-height: 160px; resize: vertical; }
   textarea:focus, .url-input:focus { border-color: rgba(255,154,60,0.35); }
   textarea::placeholder, .url-input::placeholder { color: var(--text-muted); }
-  .drop-zone { border: 2px dashed rgba(255,255,255,0.1); border-radius: 10px; padding: 38px 20px; text-align: center; cursor: pointer; transition: all 0.18s; position: relative; }
+  .drop-zone { border: 2px dashed rgba(255,255,255,0.1); border-radius: 10px; padding: 30px 20px; text-align: center; cursor: pointer; transition: all 0.18s; position: relative; }
   .drop-zone:hover, .drop-zone.drag-over { border-color: rgba(255,154,60,0.4); background: rgba(255,154,60,0.03); }
   .drop-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
   .drop-icon { font-size: 26px; margin-bottom: 9px; }
   .drop-text { font-size: 14px; color: var(--text-dim); }
   .drop-sub { font-size: 12px; color: var(--text-muted); margin-top: 5px; font-family: 'JetBrains Mono', monospace; }
   .file-chip { display: flex; align-items: center; gap: 10px; background: var(--accent-bg); border: 1px solid var(--accent-border); border-radius: 8px; padding: 10px 14px; margin-top: 12px; }
+  .file-chip.blue { background: var(--blue-bg); border-color: var(--blue-border); }
   .file-chip-name { font-size: 13px; font-family: 'JetBrains Mono', monospace; color: var(--accent); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .file-chip.blue .file-chip-name { color: var(--blue); }
   .file-chip-remove { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 16px; line-height: 1; padding: 0; transition: color 0.15s; }
   .file-chip-remove:hover { color: var(--accent-deep); }
   .options-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
@@ -65,6 +71,7 @@
   .submit-btn { width: 100%; padding: 15px; background: linear-gradient(135deg, var(--accent), var(--accent-deep)); border: none; border-radius: var(--radius); color: #fff; font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; transition: opacity 0.15s, transform 0.1s; margin-top: 18px; }
   .submit-btn:hover { opacity: 0.9; }
   .submit-btn:active { transform: scale(0.99); }
+  .submit-btn.blue-btn { background: linear-gradient(135deg, #4a9eff, #1a6fd4); }
   .loading { background: var(--surface); border: 1px solid var(--accent-border); border-radius: 16px; padding: 44px 24px; text-align: center; animation: fadeUp 0.3s ease both; }
   .spinner { width: 38px; height: 38px; border: 3px solid rgba(255,154,60,0.15); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.75s linear infinite; margin: 0 auto 18px; }
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -100,18 +107,54 @@
   .history-clear-btn:hover { color: rgba(255,120,120,0.9); border-color: rgba(255,80,80,0.4); }
   .back-btn { display: flex; align-items: center; gap: 8px; background: none; border: none; color: var(--text-dim); font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; padding: 0; margin-bottom: 28px; transition: color 0.15s; }
   .back-btn:hover { color: var(--text); }
+
+  /* Compare styles */
+  .compare-files { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 4px; }
+  @media (max-width: 500px) { .compare-files { grid-template-columns: 1fr; } }
+  .compare-slot { border: 2px dashed rgba(255,255,255,0.1); border-radius: 10px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.18s; position: relative; min-height: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .compare-slot.slot1:hover, .compare-slot.slot1.has-file { border-color: rgba(255,154,60,0.4); background: rgba(255,154,60,0.03); }
+  .compare-slot.slot2:hover, .compare-slot.slot2.has-file { border-color: rgba(74,158,255,0.4); background: rgba(74,158,255,0.03); }
+  .compare-slot input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .compare-slot-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+  .slot1 .compare-slot-label { color: var(--accent); }
+  .slot2 .compare-slot-label { color: var(--blue); }
+  .compare-slot-icon { font-size: 24px; margin-bottom: 6px; }
+  .compare-slot-text { font-size: 13px; color: var(--text-dim); }
+  .compare-slot-name { font-size: 12px; font-family: 'JetBrains Mono', monospace; margin-top: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+  .slot1 .compare-slot-name { color: var(--accent); }
+  .slot2 .compare-slot-name { color: var(--blue); }
+  .compare-slot-remove { position: absolute; top: 8px; right: 8px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 14px; z-index: 2; }
+  .similarity-bar { margin: 16px 0 8px; }
+  .similarity-label { font-size: 11px; color: var(--text-muted); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; display: flex; justify-content: space-between; }
+  .similarity-track { height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
+  .similarity-fill { height: 100%; border-radius: 3px; transition: width 0.8s ease; }
+  .diff-summary { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; font-size: 14px; color: rgba(232,230,224,0.7); line-height: 1.6; font-style: italic; }
+  .diff-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  .diff-table th { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 10px 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .diff-table th:nth-child(1) { color: var(--text-muted); width: 20%; }
+  .diff-table th:nth-child(2) { color: var(--accent); width: 40%; }
+  .diff-table th:nth-child(3) { color: var(--blue); width: 40%; }
+  .diff-table td { padding: 12px; font-size: 13px; line-height: 1.6; vertical-align: top; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .diff-table td:nth-child(1) { color: var(--text-muted); font-weight: 600; font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; }
+  .diff-table td:nth-child(2) { color: rgba(255,154,60,0.85); background: rgba(255,154,60,0.03); }
+  .diff-table td:nth-child(3) { color: rgba(74,158,255,0.85); background: rgba(74,158,255,0.03); }
+  .diff-table tr:last-child td { border-bottom: none; }
 </style>
 </head>
 <body>
 <div class="container">
 
+  <!-- Main screen -->
   <div id="main-screen">
     <div class="logo-row">
       <div class="logo-left">
         <div class="logo-icon">◈</div>
         <span class="logo-text">DocBrief</span>
       </div>
-      <button class="history-btn" onclick="showHistory()">⏱ History</button>
+      <div class="top-btns">
+        <button class="compare-top-btn" onclick="showCompare()">⇄ Compare</button>
+        <button class="history-btn" onclick="showHistory()">⏱ History</button>
+      </div>
     </div>
     <h1>Summarize any<br><em>document, instantly.</em></h1>
     <p class="subhead">Technical reports, research papers, legal docs, articles —<br>drop it in and get the essence in seconds.</p>
@@ -214,6 +257,68 @@
     </div>
   </div>
 
+  <!-- Compare screen -->
+  <div id="compare-screen" style="display:none">
+    <div class="logo-row">
+      <div class="logo-left">
+        <div class="logo-icon">◈</div>
+        <span class="logo-text">DocBrief</span>
+      </div>
+    </div>
+    <button class="back-btn" onclick="showMain()">← Back</button>
+
+    <div id="compare-input">
+      <div class="card">
+        <div class="card-label">Upload two documents to compare</div>
+        <div class="compare-files">
+          <div class="compare-slot slot1" id="slot1">
+            <input type="file" id="file-compare-1" accept=".txt,.md,.csv,.json,.html,.xml,.pdf,.doc,.docx">
+            <div class="compare-slot-label">Document 1</div>
+            <div class="compare-slot-icon">📄</div>
+            <div class="compare-slot-text" id="slot1-text">Tap to select</div>
+            <div class="compare-slot-name" id="slot1-name"></div>
+          </div>
+          <div class="compare-slot slot2" id="slot2">
+            <input type="file" id="file-compare-2" accept=".txt,.md,.csv,.json,.html,.xml,.pdf,.doc,.docx">
+            <div class="compare-slot-label">Document 2</div>
+            <div class="compare-slot-icon">📄</div>
+            <div class="compare-slot-text" id="slot2-text">Tap to select</div>
+            <div class="compare-slot-name" id="slot2-name"></div>
+          </div>
+        </div>
+        <p style="font-size:12px;color:var(--text-muted);margin-top:12px;font-family:'JetBrains Mono',monospace;">
+          If using iCloud Drive, long press file → Download Now first.
+        </p>
+      </div>
+
+      <div id="compare-error" class="error-msg" style="display:none"></div>
+      <button class="submit-btn blue-btn" onclick="handleCompare()">⇄ Compare Documents</button>
+    </div>
+
+    <div id="compare-loading" style="display:none">
+      <div class="loading">
+        <div class="spinner"></div>
+        <div class="loading-title">Comparing documents…</div>
+        <div class="loading-sub">Finding differences</div>
+      </div>
+    </div>
+
+    <div id="compare-result" style="display:none">
+      <div class="result">
+        <div class="result-header">
+          <div>
+            <div class="result-title">Comparison</div>
+            <div class="result-meta" id="compare-meta"></div>
+          </div>
+          <button class="copy-btn" id="compare-copy-btn" onclick="copyCompare()">Copy</button>
+        </div>
+        <div id="compare-body"></div>
+      </div>
+      <button class="new-btn" onclick="resetCompare()">+ Compare other documents</button>
+    </div>
+  </div>
+
+  <!-- History screen -->
   <div id="history-screen" style="display:none">
     <div class="logo-row">
       <div class="logo-left">
@@ -238,8 +343,12 @@
   let currentTab = "text";
   let opts = { format: "bullets", length: "medium" };
   let selectedFile = null;
+  let compareFile1 = null;
+  let compareFile2 = null;
   let lastSummary = "";
+  let lastCompareText = "";
 
+  // History
   function getHistory() {
     try { return JSON.parse(localStorage.getItem('docbrief_history') || '[]'); } catch { return []; }
   }
@@ -283,15 +392,26 @@
     showMain();
     show('result');
   }
+
+  // Screen navigation
+  function showMain() {
+    document.getElementById('main-screen').style.display = 'block';
+    document.getElementById('compare-screen').style.display = 'none';
+    document.getElementById('history-screen').style.display = 'none';
+  }
   function showHistory() {
     document.getElementById('main-screen').style.display = 'none';
+    document.getElementById('compare-screen').style.display = 'none';
     document.getElementById('history-screen').style.display = 'block';
     renderHistory();
   }
-  function showMain() {
+  function showCompare() {
+    document.getElementById('main-screen').style.display = 'none';
+    document.getElementById('compare-screen').style.display = 'block';
     document.getElementById('history-screen').style.display = 'none';
-    document.getElementById('main-screen').style.display = 'block';
   }
+
+  // UI helpers
   function switchTab(tab, btn) {
     currentTab = tab;
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -331,63 +451,68 @@
     show('loading');
   }
 
-  // File selection — use arrayBuffer() which works best on modern iOS
-  document.getElementById('file-input').addEventListener('change', async function() {
-    const f = this.files[0];
-    if (!f) return;
-    const name = f.name;
-    try {
-      const buffer = await f.arrayBuffer();
-      const bytes = new Uint8Array(buffer);
-      let binary = '';
-      const chunkSize = 8192;
-      for (let i = 0; i < bytes.length; i += chunkSize) {
-        binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
-      }
-      const base64 = btoa(binary);
-      selectedFile = { name, base64 };
-      document.getElementById('file-chip-name').textContent = name;
-      document.getElementById('file-chip-icon').textContent = getFileIcon(name);
-      document.getElementById('file-chip').style.display = 'flex';
-    } catch(e) {
-      showError("Could not read file: " + e.message);
+  // File reading helper
+  async function readFileAsBase64(file) {
+    const buffer = await file.arrayBuffer();
+    const bytes = new Uint8Array(buffer);
+    let binary = '';
+    const chunkSize = 8192;
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+      binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
     }
-  });
+    return btoa(binary);
+  }
 
-  const dz = document.getElementById('drop-zone');
-  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
-  dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
-  dz.addEventListener('drop', async e => {
-    e.preventDefault(); dz.classList.remove('drag-over');
-    const f = e.dataTransfer.files[0]; if (!f) return;
-    const name = f.name;
+  // Summarize file input
+  document.getElementById('file-input').addEventListener('change', async function() {
+    const f = this.files[0]; if (!f) return;
     try {
-      const buffer = await f.arrayBuffer();
-      const bytes = new Uint8Array(buffer);
-      let binary = '';
-      const chunkSize = 8192;
-      for (let i = 0; i < bytes.length; i += chunkSize) {
-        binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
-      }
-      selectedFile = { name, base64: btoa(binary) };
-      document.getElementById('file-chip-name').textContent = name;
-      document.getElementById('file-chip-icon').textContent = getFileIcon(name);
+      const base64 = await readFileAsBase64(f);
+      selectedFile = { name: f.name, base64 };
+      document.getElementById('file-chip-name').textContent = f.name;
+      document.getElementById('file-chip-icon').textContent = getFileIcon(f.name);
       document.getElementById('file-chip').style.display = 'flex';
     } catch(e) {
       showError("Could not read file. If using iCloud Drive, open the Files app, long press the file, tap 'Download Now', then try again.");
     }
+  });
 
+  // Compare file inputs
+  document.getElementById('file-compare-1').addEventListener('change', async function() {
+    const f = this.files[0]; if (!f) return;
+    try {
+      const base64 = await readFileAsBase64(f);
+      compareFile1 = { name: f.name, base64 };
+      document.getElementById('slot1-text').textContent = '';
+      document.getElementById('slot1-name').textContent = f.name;
+      document.getElementById('slot1').classList.add('has-file');
+    } catch(e) {
+      document.getElementById('compare-error').textContent = "⚠ Could not read file. If using iCloud Drive, long press → Download Now first.";
+      document.getElementById('compare-error').style.display = 'block';
     }
   });
 
+  document.getElementById('file-compare-2').addEventListener('change', async function() {
+    const f = this.files[0]; if (!f) return;
+    try {
+      const base64 = await readFileAsBase64(f);
+      compareFile2 = { name: f.name, base64 };
+      document.getElementById('slot2-text').textContent = '';
+      document.getElementById('slot2-name').textContent = f.name;
+      document.getElementById('slot2').classList.add('has-file');
+    } catch(e) {
+      document.getElementById('compare-error').textContent = "⚠ Could not read file. If using iCloud Drive, long press → Download Now first.";
+      document.getElementById('compare-error').style.display = 'block';
+    }
+  });
+
+  // Summarize submit
   async function handleSubmit() {
     document.getElementById('error-msg').style.display = 'none';
-
     const language = document.getElementById('language-select').value;
     const langInstr = language === 'auto'
       ? 'Detect the language of the document and write the summary in that same language.'
       : language !== 'English' ? `Write the summary in ${language}.` : '';
-
     const lengthMap = {
       short:  "brief: 2-3 sentences or 3-4 bullet points",
       medium: "moderate: 1 paragraph or 6-8 bullet points",
@@ -397,27 +522,23 @@
       ? 'Return ONLY a JSON array of bullet strings like ["Point one.", "Point two."]. No other text.'
       : 'Return ONLY a plain paragraph of text. No JSON, no markdown.';
 
-    let userContent = "";
-    let source = "";
+    let userContent = "", source = "";
 
     if (currentTab === "text") {
       const t = document.getElementById('text-input').value.trim();
       if (t.length < 20) { showError("Please paste more text."); return; }
       source = "Pasted text";
       userContent = `Summarize this document. Length: ${lengthMap[opts.length]}. ${langInstr} ${formatInstr}\n\nDOCUMENT:\n${t}`;
-
     } else if (currentTab === "url") {
       const u = document.getElementById('url-input').value.trim();
       if (!u) { showError("Please enter a URL."); return; }
       source = u;
       userContent = `Summarize the content at this URL: ${u}\nLength: ${lengthMap[opts.length]}. ${langInstr} ${formatInstr}`;
-
     } else {
       if (!selectedFile) { showError("Please select a file."); return; }
       if (!selectedFile.base64) { showError("File still loading, please wait a moment and try again."); return; }
       source = selectedFile.name;
       setLoading("Extracting document text…", "Please wait");
-
       let parseResp, parseData;
       try {
         parseResp = await fetch(`${BACKEND}/parse-file`, {
@@ -426,15 +547,9 @@
           body: JSON.stringify({ data: selectedFile.base64, name: selectedFile.name })
         });
         parseData = await parseResp.json();
-      } catch(e) {
-        showError("Upload failed: " + e.message); return;
-      }
-      if (!parseResp.ok || parseData.error) {
-        showError("File error: " + (parseData?.error || "HTTP " + parseResp.status)); return;
-      }
-      if (!parseData.text || parseData.text.trim().length < 10) {
-        showError("Could not extract text from this file."); return;
-      }
+      } catch(e) { showError("Upload failed: " + e.message); return; }
+      if (!parseResp.ok || parseData.error) { showError("File error: " + (parseData?.error || "HTTP " + parseResp.status)); return; }
+      if (!parseData.text || parseData.text.trim().length < 10) { showError("Could not extract text from this file."); return; }
       userContent = `Summarize this document. Length: ${lengthMap[opts.length]}. ${langInstr} ${formatInstr}\n\nDOCUMENT:\n${parseData.text}`;
     }
 
@@ -448,16 +563,10 @@
         body: JSON.stringify({ messages: [{ role: "user", content: userContent }] })
       });
       data = await resp.json();
-    } catch(e) {
-      showError("Network error: " + e.message); return;
-    }
+    } catch(e) { showError("Network error: " + e.message); return; }
 
-    if (!resp.ok || data.error) {
-      showError(data.error?.message || "HTTP " + resp.status + " — " + JSON.stringify(data).slice(0, 200)); return;
-    }
-    if (!data.choices) {
-      showError("Unexpected response: " + JSON.stringify(data).slice(0, 200)); return;
-    }
+    if (!resp.ok || data.error) { showError(data.error?.message || "HTTP " + resp.status + " — " + JSON.stringify(data).slice(0, 200)); return; }
+    if (!data.choices) { showError("Unexpected response: " + JSON.stringify(data).slice(0, 200)); return; }
 
     const raw = data.choices?.[0]?.message?.content?.trim() || "";
     if (!raw) { showError("Empty response from AI."); return; }
@@ -478,19 +587,135 @@
 
     lastSummary = Array.isArray(summary) ? summary.join("\n• ") : summary;
     saveToHistory(source, summary, language);
-
     const words = lastSummary.split(/\s+/).length;
-    document.getElementById('result-meta').textContent = source + " · ~" + words + " words" + (language !== 'English' ? ' · ' + language : '');
+    document.getElementById('result-meta').textContent = source + " · ~" + words + " words" + (language !== 'English' && language !== 'auto' ? ' · ' + language : '');
     document.getElementById('result-body').innerHTML = Array.isArray(summary)
       ? "<ul>" + summary.map(p => `<li>${p}</li>`).join("") + "</ul>"
       : "<p>" + summary + "</p>";
-
     show('result');
+  }
+
+  // Compare submit
+  async function handleCompare() {
+    const errEl = document.getElementById('compare-error');
+    errEl.style.display = 'none';
+
+    if (!compareFile1 || !compareFile2) {
+      errEl.textContent = "⚠ Please select both documents.";
+      errEl.style.display = 'block'; return;
+    }
+
+    document.getElementById('compare-input').style.display = 'none';
+    document.getElementById('compare-loading').style.display = 'block';
+    document.getElementById('compare-result').style.display = 'none';
+
+    let resp, data;
+    try {
+      resp = await fetch(`${BACKEND}/compare`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          file1: { data: compareFile1.base64, name: compareFile1.name },
+          file2: { data: compareFile2.base64, name: compareFile2.name }
+        })
+      });
+      data = await resp.json();
+    } catch(e) {
+      document.getElementById('compare-input').style.display = 'block';
+      document.getElementById('compare-loading').style.display = 'none';
+      errEl.textContent = "⚠ Network error: " + e.message;
+      errEl.style.display = 'block'; return;
+    }
+
+    if (!resp.ok || data.error) {
+      document.getElementById('compare-input').style.display = 'block';
+      document.getElementById('compare-loading').style.display = 'none';
+      errEl.textContent = "⚠ " + (data.error || "HTTP " + resp.status);
+      errEl.style.display = 'block'; return;
+    }
+
+    // Parse result
+    let result;
+    try {
+      const clean = data.result.replace(/^```[\w]*\n?/, "").replace(/\n?```$/, "").trim();
+      result = JSON.parse(clean);
+    } catch(e) {
+      document.getElementById('compare-input').style.display = 'block';
+      document.getElementById('compare-loading').style.display = 'none';
+      errEl.textContent = "⚠ Could not parse comparison result.";
+      errEl.style.display = 'block'; return;
+    }
+
+    // Render result
+    const similarity = result.similarity || 0;
+    const color = similarity > 70 ? '#4caf7d' : similarity > 40 ? '#ff9a3c' : '#ff5f5f';
+
+    lastCompareText = `${compareFile1.name} vs ${compareFile2.name}\n\n${result.summary}\n\nDifferences:\n` +
+      result.differences.map(d => `${d.category}:\n  Doc 1: ${d.doc1}\n  Doc 2: ${d.doc2}`).join('\n\n');
+
+    document.getElementById('compare-meta').textContent = compareFile1.name + ' vs ' + compareFile2.name;
+
+    document.getElementById('compare-body').innerHTML = `
+      <div class="diff-summary">${result.summary}</div>
+      <div class="similarity-bar">
+        <div class="similarity-label">
+          <span>Similarity</span>
+          <span style="color:${color}">${similarity}%</span>
+        </div>
+        <div class="similarity-track">
+          <div class="similarity-fill" style="width:${similarity}%;background:${color}"></div>
+        </div>
+      </div>
+      <table class="diff-table">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>${compareFile1.name}</th>
+            <th>${compareFile2.name}</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${result.differences.map(d => `
+            <tr>
+              <td>${d.category}</td>
+              <td>${d.doc1}</td>
+              <td>${d.doc2}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+
+    document.getElementById('compare-loading').style.display = 'none';
+    document.getElementById('compare-result').style.display = 'block';
+  }
+
+  function resetCompare() {
+    compareFile1 = null; compareFile2 = null;
+    document.getElementById('slot1-name').textContent = '';
+    document.getElementById('slot2-name').textContent = '';
+    document.getElementById('slot1-text').textContent = 'Tap to select';
+    document.getElementById('slot2-text').textContent = 'Tap to select';
+    document.getElementById('slot1').classList.remove('has-file');
+    document.getElementById('slot2').classList.remove('has-file');
+    document.getElementById('file-compare-1').value = '';
+    document.getElementById('file-compare-2').value = '';
+    document.getElementById('compare-error').style.display = 'none';
+    document.getElementById('compare-input').style.display = 'block';
+    document.getElementById('compare-result').style.display = 'none';
   }
 
   function copyResult() {
     navigator.clipboard.writeText(lastSummary).then(() => {
       const btn = document.getElementById('copy-btn');
+      btn.textContent = "✓ Copied"; btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = "Copy"; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+
+  function copyCompare() {
+    navigator.clipboard.writeText(lastCompareText).then(() => {
+      const btn = document.getElementById('compare-copy-btn');
       btn.textContent = "✓ Copied"; btn.classList.add('copied');
       setTimeout(() => { btn.textContent = "Copy"; btn.classList.remove('copied'); }, 2000);
     });
