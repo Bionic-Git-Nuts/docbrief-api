@@ -1,4 +1,4 @@
-const CACHE = "docbrief-v1";
+const CACHE = "docbrief-v2";
 const ASSETS = ["/", "/index.html", "/manifest.json"];
 
 self.addEventListener("install", e => {
