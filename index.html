@@ -277,8 +277,7 @@
     if (!item) return;
     lastSummary = Array.isArray(item.summary) ? item.summary.join("\n• ") : item.summary;
     document.getElementById('result-meta').textContent = item.source + ' · ' + item.date + (item.language !== 'English' ? ' · ' + item.language : '');
-    const body = document.getElementById('result-body');
-    body.innerHTML = Array.isArray(item.summary)
+    document.getElementById('result-body').innerHTML = Array.isArray(item.summary)
       ? "<ul>" + item.summary.map(p => `<li>${p}</li>`).join("") + "</ul>"
       : "<p>" + item.summary + "</p>";
     showMain();
@@ -294,7 +293,7 @@
     document.getElementById('main-screen').style.display = 'block';
   }
 
-  // UI
+  // UI helpers
   function switchTab(tab, btn) {
     currentTab = tab;
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -317,42 +316,6 @@
     if (name.endsWith('.doc') || name.endsWith('.docx')) return '📘';
     return '📄';
   }
-  document.getElementById('file-input').addEventListener('change', function() {
-    const f = this.files[0]; if (!f) return;
-    const name = f.name;
-    const type = f.type;
-    // Read file into ArrayBuffer immediately to prevent iOS Safari file loss
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      selectedFile = {
-        name: name,
-        type: type,
-        buffer: e.target.result,
-        blob: new Blob([e.target.result], { type: type })
-      };
-      document.getElementById('file-chip-name').textContent = name;
-      document.getElementById('file-chip-icon').textContent = getFileIcon(name);
-      document.getElementById('file-chip').style.display = 'flex';
-    };
-    reader.onerror = function() {
-      showError("Could not read file. Please try again.");
-    };
-    reader.readAsArrayBuffer(f);
-  });
-
-  });
-  const dz = document.getElementById('drop-zone');
-  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
-  dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
-  dz.addEventListener('drop', e => {
-    e.preventDefault(); dz.classList.remove('drag-over');
-    const f = e.dataTransfer.files[0]; if (!f) return;
-    selectedFile = f;
-    document.getElementById('file-chip-name').textContent = f.name;
-    document.getElementById('file-chip-icon').textContent = getFileIcon(f.name);
-    document.getElementById('file-chip').style.display = 'flex';
-  });
-
   function show(section) {
     document.getElementById('input-section').style.display   = section === 'input'   ? 'block' : 'none';
     document.getElementById('loading-section').style.display = section === 'loading' ? 'block' : 'none';
@@ -370,7 +333,48 @@
     show('loading');
   }
 
-  // Main submit — fully separated into steps, no nested try/catch
+  // Read file into base64 immediately on selection
+  document.getElementById('file-input').addEventListener('change', function() {
+    const f = this.files[0];
+    if (!f) return;
+    const name = f.name;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const bytes = new Uint8Array(e.target.result);
+      let binary = '';
+      for (let i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      const base64 = btoa(binary);
+      selectedFile = { name, base64 };
+      document.getElementById('file-chip-name').textContent = name;
+      document.getElementById('file-chip-icon').textContent = getFileIcon(name);
+      document.getElementById('file-chip').style.display = 'flex';
+    };
+    reader.onerror = () => showError("Could not read file. Please try again.");
+    reader.readAsArrayBuffer(f);
+  });
+
+  const dz = document.getElementById('drop-zone');
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault(); dz.classList.remove('drag-over');
+    const f = e.dataTransfer.files[0]; if (!f) return;
+    const name = f.name;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      const bytes = new Uint8Array(ev.target.result);
+      let binary = '';
+      for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+      selectedFile = { name, base64: btoa(binary) };
+      document.getElementById('file-chip-name').textContent = name;
+      document.getElementById('file-chip-icon').textContent = getFileIcon(name);
+      document.getElementById('file-chip').style.display = 'flex';
+    };
+    reader.readAsArrayBuffer(f);
+  });
+
   async function handleSubmit() {
     document.getElementById('error-msg').style.display = 'none';
 
@@ -385,7 +389,6 @@
       ? 'Return ONLY a JSON array of bullet strings like ["Point one.", "Point two."]. No other text.'
       : 'Return ONLY a plain paragraph of text. No JSON, no markdown.';
 
-    // Step 1: get document text
     let userContent = "";
     let source = "";
 
@@ -403,14 +406,17 @@
 
     } else {
       if (!selectedFile) { showError("Please select a file."); return; }
+      if (!selectedFile.base64) { showError("File not ready yet. Please wait a moment and try again."); return; }
       source = selectedFile.name;
       setLoading("Extracting document text…", "Please wait");
 
       let parseResp, parseData;
       try {
-        const formData = new FormData();
-        formData.append("file", selectedFile.blob, selectedFile.name);
-        parseResp = await fetch(`${BACKEND}/parse-file`, { method: "POST", body: formData });
+        parseResp = await fetch(`${BACKEND}/parse-file`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ data: selectedFile.base64, name: selectedFile.name })
+        });
         parseData = await parseResp.json();
       } catch(e) {
         showError("Upload failed: " + e.message); return;
@@ -424,7 +430,6 @@
       userContent = `Summarize this document. Length: ${lengthMap[opts.length]}. ${langInstr} ${formatInstr}\n\nDOCUMENT:\n${parseData.text}`;
     }
 
-    // Step 2: summarize
     setLoading("Reading your document…", "Extracting key insights");
 
     let resp, data;
@@ -449,7 +454,6 @@
     const raw = data.choices?.[0]?.message?.content?.trim() || "";
     if (!raw) { showError("Empty response from AI."); return; }
 
-    // Step 3: parse summary
     let summary;
     if (opts.format === "bullets") {
       try {
