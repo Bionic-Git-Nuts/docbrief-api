@@ -33,7 +33,6 @@
   .top-btns { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
   .top-btn { border-radius: 8px; padding: 7px 11px; font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.15s; letter-spacing: 0.04em; border: 1px solid; }
   .top-btn-history { background: rgba(255,255,255,0.04); border-color: var(--border); color: var(--text-dim); }
-  .top-btn-history:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
   .top-btn-compare { background: var(--blue-bg); border-color: var(--blue-border); color: var(--blue); }
   .top-btn-extract { background: var(--green-bg); border-color: var(--green-border); color: var(--green); }
   .top-btn-translate { background: var(--purple-bg); border-color: var(--purple-border); color: var(--purple); }
@@ -93,7 +92,6 @@
   .panel { display: none; }
   .panel.active { display: block; }
   .back-btn { display: flex; align-items: center; gap: 8px; background: none; border: none; color: var(--text-dim); font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; padding: 0; margin-bottom: 28px; transition: color 0.15s; }
-  .back-btn:hover { color: var(--text); }
   .history-empty { text-align: center; padding: 48px 20px; color: var(--text-muted); font-size: 14px; }
   .history-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 12px; cursor: pointer; transition: border-color 0.15s; }
   .history-item:hover { border-color: rgba(255,154,60,0.3); }
@@ -264,19 +262,32 @@
     </div>
     <button class="back-btn" onclick="showScreen('main')">← Back</button>
     <div class="card">
-      <div class="card-label">Extract specific content</div>
-      <div class="drop-zone" id="extract-drop-zone">
-        <input type="file" id="extract-file-input" accept=".txt,.md,.csv,.json,.html,.xml,.pdf,.doc,.docx">
-        <div class="drop-icon">⊞</div>
-        <div class="drop-text">Upload a file</div>
-        <div class="drop-sub">.txt · .md · .pdf · .doc · .docx · .csv · .html</div>
+      <div class="card-label">Input source</div>
+      <div class="tabs">
+        <button class="tab active" onclick="switchExtractTab('file', this)">⊞ File</button>
+        <button class="tab" onclick="switchExtractTab('url', this)">⊕ URL</button>
+        <button class="tab" onclick="switchExtractTab('text', this)">✦ Paste Text</button>
       </div>
-      <div class="file-chip" id="extract-file-chip" style="display:none;margin-top:12px">
-        <span style="font-size:18px" id="extract-chip-icon">📄</span>
-        <span class="file-chip-name" id="extract-chip-name"></span>
-        <button class="file-chip-remove" onclick="clearExtractFile()">✕</button>
+      <div id="extract-panel-file" class="panel active">
+        <div class="drop-zone">
+          <input type="file" id="extract-file-input" accept=".txt,.md,.csv,.json,.html,.xml,.pdf,.doc,.docx">
+          <div class="drop-icon">⊞</div>
+          <div class="drop-text">Upload a file</div>
+          <div class="drop-sub">.txt · .md · .pdf · .doc · .docx · .csv · .html</div>
+        </div>
+        <div class="file-chip" id="extract-file-chip" style="display:none;margin-top:12px">
+          <span style="font-size:18px" id="extract-chip-icon">📄</span>
+          <span class="file-chip-name" id="extract-chip-name"></span>
+          <button class="file-chip-remove" onclick="clearExtractFile()">✕</button>
+        </div>
+        <p class="icloud-note">If using iCloud Drive, long press file → Download Now first.</p>
       </div>
-      <p class="icloud-note">If using iCloud Drive, long press file → Download Now first.</p>
+      <div id="extract-panel-url" class="panel">
+        <input class="url-input" id="extract-url-input" type="url" placeholder="https://example.com/article.html">
+      </div>
+      <div id="extract-panel-text" class="panel">
+        <textarea id="extract-text-input" placeholder="Paste text to extract from…"></textarea>
+      </div>
     </div>
     <div class="card">
       <div class="card-label">What to extract</div>
@@ -285,8 +296,8 @@
     <div class="card">
       <div class="card-label">Output format</div>
       <div class="opt-group">
-        <button class="opt-btn active" id="extract-fmt-docx" onclick="setExtractFormat('docx', this)">📘 .docx</button>
-        <button class="opt-btn" id="extract-fmt-txt" onclick="setExtractFormat('txt', this)">📄 .txt</button>
+        <button class="opt-btn active" onclick="setExtractFormat('docx', this)">📘 .docx</button>
+        <button class="opt-btn" onclick="setExtractFormat('txt', this)">📄 .txt</button>
       </div>
     </div>
     <div id="extract-error" class="error-msg" style="display:none"></div>
@@ -325,13 +336,17 @@
       <div class="card-label">Input source</div>
       <div class="tabs">
         <button class="tab active" onclick="switchTranslateTab('text', this)">✦ Paste Text</button>
+        <button class="tab" onclick="switchTranslateTab('url', this)">⊕ URL</button>
         <button class="tab" onclick="switchTranslateTab('file', this)">⊞ File</button>
       </div>
       <div id="translate-panel-text" class="panel active">
         <textarea id="translate-text-input" placeholder="Paste text to translate…"></textarea>
       </div>
+      <div id="translate-panel-url" class="panel">
+        <input class="url-input" id="translate-url-input" type="url" placeholder="https://example.com/article.html">
+      </div>
       <div id="translate-panel-file" class="panel">
-        <div class="drop-zone" id="translate-drop-zone">
+        <div class="drop-zone">
           <input type="file" id="translate-file-input" accept=".txt,.md,.csv,.json,.html,.xml,.pdf,.doc,.docx">
           <div class="drop-icon">⊞</div>
           <div class="drop-text">Upload a file</div>
@@ -471,6 +486,7 @@
 
   const BACKEND = "https://docbrief-api-production.up.railway.app";
   let currentTab = "text";
+  let extractTab = "file";
   let translateTab = "text";
   let opts = { format: "bullets", length: "medium" };
   let extractFormat = "docx";
@@ -483,7 +499,6 @@
   let lastSummary = "";
   let lastCompareText = "";
 
-  // Screen navigation
   function showScreen(name) {
     ['main','extract','translate','compare','history'].forEach(s => {
       document.getElementById(s + '-screen').style.display = s === name ? 'block' : 'none';
@@ -536,20 +551,33 @@
     show('result');
   }
 
-  // UI helpers
+  // Tab switching
   function switchTab(tab, btn) {
     currentTab = tab;
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    btn.closest('.tabs').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     btn.classList.add('active');
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('panel-' + tab).classList.add('active');
+    ['text','url','file'].forEach(t => {
+      const el = document.getElementById('panel-' + t);
+      if (el) el.classList.toggle('active', t === tab);
+    });
+  }
+  function switchExtractTab(tab, btn) {
+    extractTab = tab;
+    btn.closest('.tabs').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    ['file','url','text'].forEach(t => {
+      const el = document.getElementById('extract-panel-' + t);
+      if (el) el.classList.toggle('active', t === tab);
+    });
   }
   function switchTranslateTab(tab, btn) {
     translateTab = tab;
     btn.closest('.tabs').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     btn.classList.add('active');
-    document.getElementById('translate-panel-text').classList.toggle('active', tab === 'text');
-    document.getElementById('translate-panel-file').classList.toggle('active', tab === 'file');
+    ['text','url','file'].forEach(t => {
+      const el = document.getElementById('translate-panel-' + t);
+      if (el) el.classList.toggle('active', t === tab);
+    });
   }
   function setOpt(key, val, btn) {
     opts[key] = val;
@@ -590,7 +618,6 @@
     show('loading');
   }
 
-  // File reading
   async function readFileAsBase64(file) {
     const buffer = await file.arrayBuffer();
     const bytes = new Uint8Array(buffer);
@@ -726,36 +753,39 @@
     const errEl = document.getElementById('extract-error');
     errEl.style.display = 'none';
     const query = document.getElementById('extract-query').value.trim();
-    if (!extractFile) { errEl.textContent = "⚠ Please select a file."; errEl.style.display = 'block'; return; }
     if (!query) { errEl.textContent = "⚠ Please describe what to extract."; errEl.style.display = 'block'; return; }
+
+    let body = { query, format: extractFormat };
+
+    if (extractTab === 'file') {
+      if (!extractFile) { errEl.textContent = "⚠ Please select a file."; errEl.style.display = 'block'; return; }
+      body.data = extractFile.base64;
+      body.name = extractFile.name;
+    } else if (extractTab === 'url') {
+      const u = document.getElementById('extract-url-input').value.trim();
+      if (!u) { errEl.textContent = "⚠ Please enter a URL."; errEl.style.display = 'block'; return; }
+      body.url = u;
+      body.name = 'url-content.txt';
+    } else {
+      const t = document.getElementById('extract-text-input').value.trim();
+      if (t.length < 10) { errEl.textContent = "⚠ Please paste some text."; errEl.style.display = 'block'; return; }
+      body.text = t;
+      body.name = 'pasted-text.txt';
+    }
 
     document.getElementById('extract-loading').style.display = 'block';
     document.getElementById('extract-result').style.display = 'none';
 
     try {
-      const resp = await fetch(`${BACKEND}/extract`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ data: extractFile.base64, name: extractFile.name, query, format: extractFormat })
-      });
-
-      if (!resp.ok) {
-        const err = await resp.json();
-        throw new Error(err.error || "HTTP " + resp.status);
-      }
-
+      const resp = await fetch(`${BACKEND}/extract`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      if (!resp.ok) { const err = await resp.json(); throw new Error(err.error || "HTTP " + resp.status); }
       const blob = await resp.blob();
       const url = URL.createObjectURL(blob);
-      const text = extractFormat === 'txt' ? await blob.text() : '[.docx file ready to download]';
-
+      const text = extractFormat === 'txt' ? await blob.text() : '';
       document.getElementById('extract-preview').textContent = extractFormat === 'txt' ? text.slice(0, 1000) + (text.length > 1000 ? '…' : '') : 'Your .docx file is ready to download.';
-      document.getElementById('extract-result-meta').textContent = extractFile.name + ' · ' + query;
-
+      document.getElementById('extract-result-meta').textContent = (body.name || 'document') + ' · ' + query;
       const link = document.getElementById('extract-download-link');
-      link.href = url;
-      link.download = `extracted.${extractFormat}`;
-      link.style.display = 'inline-flex';
-
+      link.href = url; link.download = `extracted.${extractFormat}`; link.style.display = 'inline-flex';
       document.getElementById('extract-loading').style.display = 'none';
       document.getElementById('extract-result').style.display = 'block';
     } catch(e) {
@@ -769,13 +799,17 @@
     const errEl = document.getElementById('translate-error');
     errEl.style.display = 'none';
     const target = document.getElementById('translate-target').value;
-
     let body = { targetLanguage: target, format: translateFormat };
 
     if (translateTab === 'text') {
       const t = document.getElementById('translate-text-input').value.trim();
       if (t.length < 10) { errEl.textContent = "⚠ Please paste some text."; errEl.style.display = 'block'; return; }
       body.text = t;
+    } else if (translateTab === 'url') {
+      const u = document.getElementById('translate-url-input').value.trim();
+      if (!u) { errEl.textContent = "⚠ Please enter a URL."; errEl.style.display = 'block'; return; }
+      body.url = u;
+      body.name = 'url-content.txt';
     } else {
       if (!translateFile) { errEl.textContent = "⚠ Please select a file."; errEl.style.display = 'block'; return; }
       body.data = translateFile.base64;
@@ -786,29 +820,15 @@
     document.getElementById('translate-result').style.display = 'none';
 
     try {
-      const resp = await fetch(`${BACKEND}/translate`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body)
-      });
-
-      if (!resp.ok) {
-        const err = await resp.json();
-        throw new Error(err.error || "HTTP " + resp.status);
-      }
-
+      const resp = await fetch(`${BACKEND}/translate`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      if (!resp.ok) { const err = await resp.json(); throw new Error(err.error || "HTTP " + resp.status); }
       const blob = await resp.blob();
       const url = URL.createObjectURL(blob);
-      const text = translateFormat === 'txt' ? await blob.text() : '[.docx file ready to download]';
-
+      const text = translateFormat === 'txt' ? await blob.text() : '';
       document.getElementById('translate-preview').textContent = translateFormat === 'txt' ? text.slice(0, 1000) + (text.length > 1000 ? '…' : '') : 'Your .docx translation is ready to download.';
       document.getElementById('translate-result-meta').textContent = 'Translated to ' + target;
-
       const link = document.getElementById('translate-download-link');
-      link.href = url;
-      link.download = `translated_${target}.${translateFormat}`;
-      link.style.display = 'inline-flex';
-
+      link.href = url; link.download = `translated_${target}.${translateFormat}`; link.style.display = 'inline-flex';
       document.getElementById('translate-loading').style.display = 'none';
       document.getElementById('translate-result').style.display = 'block';
     } catch(e) {
@@ -822,31 +842,23 @@
     const errEl = document.getElementById('compare-error');
     errEl.style.display = 'none';
     if (!compareFile1 || !compareFile2) { errEl.textContent = "⚠ Please select both documents."; errEl.style.display = 'block'; return; }
-
     document.getElementById('compare-input').style.display = 'none';
     document.getElementById('compare-loading').style.display = 'block';
     document.getElementById('compare-result').style.display = 'none';
-
     let resp, data;
     try {
-      resp = await fetch(`${BACKEND}/compare`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ file1: { data: compareFile1.base64, name: compareFile1.name }, file2: { data: compareFile2.base64, name: compareFile2.name } })
-      });
+      resp = await fetch(`${BACKEND}/compare`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ file1: { data: compareFile1.base64, name: compareFile1.name }, file2: { data: compareFile2.base64, name: compareFile2.name } }) });
       data = await resp.json();
     } catch(e) {
       document.getElementById('compare-input').style.display = 'block';
       document.getElementById('compare-loading').style.display = 'none';
       errEl.textContent = "⚠ " + e.message; errEl.style.display = 'block'; return;
     }
-
     if (!resp.ok || data.error) {
       document.getElementById('compare-input').style.display = 'block';
       document.getElementById('compare-loading').style.display = 'none';
       errEl.textContent = "⚠ " + (data.error || "HTTP " + resp.status); errEl.style.display = 'block'; return;
     }
-
     let result;
     try {
       const clean = data.result.replace(/^```[\w]*\n?/, "").replace(/\n?```$/, "").trim();
@@ -856,12 +868,10 @@
       document.getElementById('compare-loading').style.display = 'none';
       errEl.textContent = "⚠ Could not parse comparison result."; errEl.style.display = 'block'; return;
     }
-
     const similarity = result.similarity || 0;
     const color = similarity > 70 ? '#4caf7d' : similarity > 40 ? '#ff9a3c' : '#ff5f5f';
     lastCompareText = `${compareFile1.name} vs ${compareFile2.name}\n\n${result.summary}\n\nDifferences:\n` +
       result.differences.map(d => `${d.category}:\n  Doc 1: ${d.doc1}\n  Doc 2: ${d.doc2}`).join('\n\n');
-
     document.getElementById('compare-meta').textContent = compareFile1.name + ' vs ' + compareFile2.name;
     document.getElementById('compare-body').innerHTML = `
       <div class="diff-summary">${result.summary}</div>
@@ -873,7 +883,6 @@
         <thead><tr><th>Category</th><th>${compareFile1.name}</th><th>${compareFile2.name}</th></tr></thead>
         <tbody>${result.differences.map(d => `<tr><td>${d.category}</td><td>${d.doc1}</td><td>${d.doc2}</td></tr>`).join('')}</tbody>
       </table>`;
-
     document.getElementById('compare-loading').style.display = 'none';
     document.getElementById('compare-result').style.display = 'block';
   }
@@ -893,6 +902,8 @@
     extractFile = null;
     document.getElementById('extract-file-chip').style.display = 'none';
     document.getElementById('extract-file-input').value = '';
+    document.getElementById('extract-url-input').value = '';
+    document.getElementById('extract-text-input').value = '';
     document.getElementById('extract-query').value = '';
     document.getElementById('extract-error').style.display = 'none';
     document.getElementById('extract-result').style.display = 'none';
@@ -902,6 +913,7 @@
     translateFile = null;
     document.getElementById('translate-file-chip').style.display = 'none';
     document.getElementById('translate-file-input').value = '';
+    document.getElementById('translate-url-input').value = '';
     document.getElementById('translate-text-input').value = '';
     document.getElementById('translate-error').style.display = 'none';
     document.getElementById('translate-result').style.display = 'none';
