@@ -409,7 +409,7 @@
       let parseResp, parseData;
       try {
         const formData = new FormData();
-        formData.append("file", selectedFile);
+        formData.append("file", selectedFile.blob, selectedFile.name);
         parseResp = await fetch(`${BACKEND}/parse-file`, { method: "POST", body: formData });
         parseData = await parseResp.json();
       } catch(e) {
