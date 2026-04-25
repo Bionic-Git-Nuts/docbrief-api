@@ -383,7 +383,10 @@
     document.getElementById('error-msg').style.display = 'none';
 
     const language = document.getElementById('language-select').value;
-    const langInstr = language !== 'English' ? `Write the summary in ${language}.` : '';
+    const langInstr = language === 'auto'
+      ? 'Detect the language of the document and write the summary in that same language.'
+      : language !== 'English' ? `Write the summary in ${language}.` : '';
+
     const lengthMap = {
       short:  "brief: 2-3 sentences or 3-4 bullet points",
       medium: "moderate: 1 paragraph or 6-8 bullet points",
