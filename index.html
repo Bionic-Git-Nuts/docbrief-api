@@ -392,42 +392,32 @@
       } else {
         if (!selectedFile) { showError("Please select a file."); return; }
         source = selectedFile.name;
-        const name = selectedFile.name.toLowerCase();
-        const mime = selectedFile.type;
-
-        // Always send to server for binary formats
-        const needsServer = name.endsWith('.pdf') || name.endsWith('.doc') || name.endsWith('.docx')
-          || mime === 'application/pdf'
-          || mime === 'application/msword'
-          || mime === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-
-        if (needsServer) {
-          setLoading("Extracting document text…", "Please wait");
-          show('loading');
-          const formData = new FormData();
-          formData.append("file", selectedFile);
-          const parseResp = await fetch(`${BACKEND}/parse-file`, { method: "POST", body: formData });
-          const parseData = await parseResp.json();
-          if (!parseResp.ok || parseData.error) throw new Error(parseData.error || "File extraction failed");
-          userContent = `Summarize this document. Length: ${lengthMap[opts.length]}. ${langInstr} ${formatInstr}\n\nDOCUMENT:\n${parseData.text}`;
-        } else {
-          // Send all files to server to avoid iOS Safari file reading issues
-          setLoading("Extracting document text…", "Please wait");
-          show('loading');
-          const formData = new FormData();
-          formData.append("file", selectedFile);
-          const parseResp = await fetch(`${BACKEND}/parse-file`, { method: "POST", body: formData });
-          const parseData = await parseResp.json();
-          if (!parseResp.ok || parseData.error) throw new Error(parseData.error || "File extraction failed");
-          userContent = `Summarize this document. Length: ${lengthMap[opts.length]}. ${langInstr} ${formatInstr}\n\nDOCUMENT:\n${parseData.text}`;
+        setLoading("Extracting document text…", "Please wait");
+        show('loading');
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+        let parseResp, parseData;
+        try {
+          parseResp = await fetch(`${BACKEND}/parse-file`, { method: "POST", body: formData });
+          parseData = await parseResp.json();
+        } catch(fetchErr) {
+          show('input');
+          showError("Upload failed: " + fetchErr.message);
+          return;
         }
-
+        if (!parseResp.ok || parseData.error) {
+          show('input');
+          showError("File extraction failed: " + (parseData.error || "HTTP " + parseResp.status));
+          return;
         }
+        userContent = `Summarize this document. Length: ${lengthMap[opts.length]}. ${langInstr} ${formatInstr}\n\nDOCUMENT:\n${parseData.text}`;
       }
     } catch(e) {
       show('input');
       showError("Could not read file: " + e.message);
       return;
+    }
+
     }
 
     setLoading("Reading your document…", "Extracting key insights");
