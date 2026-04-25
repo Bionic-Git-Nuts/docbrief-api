@@ -372,7 +372,7 @@
       document.getElementById('file-chip-icon').textContent = getFileIcon(name);
       document.getElementById('file-chip').style.display = 'flex';
     };
-    reader.readAsArrayBuffer(f);
+    reader.readAsDataURL(f);
   });
 
   async function handleSubmit() {
