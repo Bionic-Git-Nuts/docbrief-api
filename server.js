@@ -14,7 +14,8 @@ app.use(express.json({ limit: "100mb" }));
 app.use(express.static(path.join(__dirname)));
 
 app.get("/health", (req, res) => {
-    res.json({ status: "ok", version: "12.0", service: "Accipiter API", hasGeminiKey: !!process.env.GEMINI_API_KEY });
+  res.json({ status: "ok", version: "12.0", service: "Accipiter API", hasGeminiKey: !!process.env.GEMINI_API_KEY });
+});
 
 async function extractText(base64, name) {
   const buffer = Buffer.from(base64, "base64");
@@ -29,10 +30,9 @@ async function extractText(base64, name) {
   } else {
     text = buffer.toString("utf-8");
   }
-  // Clean and hard limit to stay within Gemini free tier
   text = text.replace(/\s+/g, " ").trim();
-  if (text.length > 10000) {
-    text = text.slice(0, 10000) + " [Document truncated]";
+  if (text.length > 5000) {
+    text = text.slice(0, 5000) + " [Document truncated]";
   }
   return text;
 }
@@ -41,12 +41,12 @@ async function fetchUrl(url) {
   const resp = await fetch(url);
   const html = await resp.text();
   let text = html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
-  if (text.length > 10000) text = text.slice(0, 10000) + " [Truncated]";
+  if (text.length > 5000) text = text.slice(0, 5000) + " [Truncated]";
   return text;
 }
 
 async function callGemini(apiKey, prompt, maxTokens = 1000) {
-  if (prompt.length > 12000) prompt = prompt.slice(0, 12000) + " [Truncated]";
+  if (prompt.length > 6000) prompt = prompt.slice(0, 6000) + " [Truncated]";
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
     {
@@ -96,10 +96,11 @@ app.post("/summarize", async (req, res) => {
     const { messages } = req.body;
     if (!messages) return res.status(400).json({ error: "Missing messages" });
     let userMessage = messages.find(m => m.role === "user")?.content || "";
-    if (userMessage.length > 12000) userMessage = userMessage.slice(0, 12000) + " [Truncated]";
+    if (userMessage.length > 6000) userMessage = userMessage.slice(0, 6000) + " [Truncated]";
     const text = await callGemini(apiKey, userMessage, 1000);
     res.json({ choices: [{ message: { content: text } }] });
   } catch (err) {
+    console.error("Summarize error:", err.message);
     res.status(500).json({ error: err.message });
   }
 });
@@ -153,7 +154,7 @@ app.post("/extract", async (req, res) => {
     } else if (data && name) {
       sourceText = await extractText(data, name);
     } else if (pastedText) {
-      sourceText = pastedText.slice(0, 10000);
+      sourceText = pastedText.slice(0, 5000);
     } else {
       return res.status(400).json({ error: "Missing text, file or URL" });
     }
@@ -196,7 +197,7 @@ app.post("/translate", async (req, res) => {
     } else if (data && name) {
       sourceText = await extractText(data, name);
     } else if (pastedText) {
-      sourceText = pastedText.slice(0, 10000);
+      sourceText = pastedText.slice(0, 5000);
     } else {
       return res.status(400).json({ error: "Missing text, file or URL" });
     }
@@ -223,4 +224,4 @@ ${sourceText}`;
   }
 });
 
-app.listen(PORT, () => console.log(`Accipiter v11.0 running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Accipiter v12.0 running on port ${PORT}`));
