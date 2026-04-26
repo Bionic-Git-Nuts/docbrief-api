@@ -46,6 +46,8 @@
   .top-btn { border-radius: 8px; padding: 7px 11px; font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.15s; letter-spacing: 0.04em; border: 1px solid; }
   .top-btn-history { background: rgba(255,255,255,0.04); border-color: var(--border); color: var(--text-dim); }
   .top-btn-history:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
+  .top-btn-settings { background: rgba(255,255,255,0.04); border-color: var(--border); color: var(--text-dim); }
+  .top-btn-settings:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
 
   /* Action row */
   .action-row { display: flex; gap: 8px; margin-bottom: 16px; }
@@ -65,10 +67,10 @@
   .tab { flex: 1; padding: 9px 10px; border: none; border-radius: 7px; background: transparent; color: var(--text-dim); font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.18s; letter-spacing: 0.02em; }
   .tab:hover { color: rgba(232,230,224,0.75); }
   .tab.active { background: var(--accent-bg); color: var(--accent); border: 1px solid var(--accent-border); }
-  textarea, .url-input, .query-input { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 13px 15px; color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.7; outline: none; transition: border-color 0.18s; }
+  textarea, .url-input, .query-input, .key-input { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 13px 15px; color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.7; outline: none; transition: border-color 0.18s; }
   textarea { min-height: 160px; resize: vertical; }
-  textarea:focus, .url-input:focus, .query-input:focus { border-color: rgba(255,154,60,0.35); }
-  textarea::placeholder, .url-input::placeholder, .query-input::placeholder { color: var(--text-muted); }
+  textarea:focus, .url-input:focus, .query-input:focus, .key-input:focus { border-color: rgba(255,154,60,0.35); }
+  textarea::placeholder, .url-input::placeholder, .query-input::placeholder, .key-input::placeholder { color: var(--text-muted); }
   .drop-zone { border: 2px dashed rgba(255,255,255,0.1); border-radius: 10px; padding: 30px 20px; text-align: center; cursor: pointer; transition: all 0.18s; position: relative; }
   .drop-zone:hover { border-color: rgba(255,154,60,0.4); background: rgba(255,154,60,0.03); }
   .drop-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
@@ -154,6 +156,14 @@
   .download-btn-purple { background: linear-gradient(135deg, #a78bfa, #7c5cbf); color: #fff; }
   .extracted-preview { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 16px; margin-top: 16px; font-size: 13px; font-family: 'JetBrains Mono', monospace; color: rgba(232,230,224,0.7); line-height: 1.8; white-space: pre-wrap; max-height: 300px; overflow-y: auto; }
   .icloud-note { font-size: 12px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; margin-top: 10px; line-height: 1.5; }
+
+  /* Settings */
+  .key-status { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 13px; font-family: 'JetBrains Mono', monospace; }
+  .key-status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .key-status-dot.active { background: #4caf7d; }
+  .key-status-dot.inactive { background: rgba(255,255,255,0.2); }
+  .settings-note { font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-top: 12px; }
+  .settings-note a { color: var(--accent); text-decoration: none; }
 </style>
 </head>
 <body>
@@ -179,9 +189,11 @@
         <span class="logo-text">Accipiter</span>
       </div>
       <div class="top-btns">
+        <button class="top-btn top-btn-settings" onclick="showScreen('settings')">⚙️</button>
         <button class="top-btn top-btn-history" onclick="showScreen('history')">⏱</button>
       </div>
     </div>
+    <h1>Summarize any<br><em>document, instantly.</em></h1>
 
     <div id="input-section">
       <div class="action-row">
@@ -283,6 +295,31 @@
       </div>
       <button class="new-btn" onclick="reset()">+ Summarize another document</button>
     </div>
+  </div>
+
+  <!-- Settings screen -->
+  <div id="settings-screen" style="display:none">
+    <div class="logo-row">
+      <div class="logo-left">
+        <div class="logo-icon"><img src="/Owl-logo.png" alt="Accipiter"></div>
+        <span class="logo-text">Accipiter</span>
+      </div>
+    </div>
+    <button class="back-btn" onclick="showScreen('main')">← Back</button>
+    <div class="card">
+      <div class="card-label">Your Gemini API Key</div>
+      <input class="key-input" id="api-key-input" type="password" placeholder="AIza…">
+      <div class="key-status" id="key-status">
+        <div class="key-status-dot inactive" id="key-dot"></div>
+        <span id="key-status-text">No key saved</span>
+      </div>
+      <p class="settings-note">
+        Get a free API key at <a href="https://aistudio.google.com" target="_blank">aistudio.google.com</a> → API Keys → Create API Key.<br><br>
+        Your key is saved only on this device and never shared. Each person uses their own key and gets their own free daily quota of 1,500 requests.
+      </p>
+    </div>
+    <button class="submit-btn btn-orange" onclick="saveApiKey()">Save API Key</button>
+    <button class="new-btn" style="margin-top:12px" onclick="clearApiKey()">Remove saved key</button>
   </div>
 
   <!-- Extract screen -->
@@ -528,6 +565,37 @@
   let lastSummary = "";
   let lastCompareText = "";
 
+  // API Key management
+  function getUserApiKey() {
+    return localStorage.getItem('accipiter_api_key') || '';
+  }
+  function saveApiKey() {
+    const key = document.getElementById('api-key-input').value.trim();
+    if (!key) { alert('Please enter an API key.'); return; }
+    localStorage.setItem('accipiter_api_key', key);
+    updateKeyStatus();
+    alert('API key saved! You can now use the app.');
+  }
+  function clearApiKey() {
+    if (confirm('Remove your saved API key?')) {
+      localStorage.removeItem('accipiter_api_key');
+      document.getElementById('api-key-input').value = '';
+      updateKeyStatus();
+    }
+  }
+  function updateKeyStatus() {
+    const key = getUserApiKey();
+    const dot = document.getElementById('key-dot');
+    const text = document.getElementById('key-status-text');
+    if (key) {
+      dot.className = 'key-status-dot active';
+      text.textContent = 'Key saved ✓ — ' + key.slice(0, 8) + '…';
+    } else {
+      dot.className = 'key-status-dot inactive';
+      text.textContent = 'No key saved';
+    }
+  }
+
   // Quota tracking
   function getQuota() {
     try {
@@ -557,13 +625,19 @@
     document.getElementById('quota-reset').textContent = `Resets in ${hrs}h ${mins}m`;
   }
   updateQuotaBar();
+  updateKeyStatus();
   setInterval(updateQuotaBar, 60000);
 
   function showScreen(name) {
-    ['main','extract','translate','compare','history'].forEach(s => {
+    ['main','extract','translate','compare','history','settings'].forEach(s => {
       document.getElementById(s + '-screen').style.display = s === name ? 'block' : 'none';
     });
     if (name === 'history') renderHistory();
+    if (name === 'settings') {
+      const key = getUserApiKey();
+      if (key) document.getElementById('api-key-input').value = key;
+      updateKeyStatus();
+    }
   }
 
   function getHistory() {
@@ -753,7 +827,7 @@
       setLoading("Extracting document text…", "Please wait");
       let parseResp, parseData;
       try {
-        parseResp = await fetch(`${BACKEND}/parse-file`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ data: selectedFile.base64, name: selectedFile.name }) });
+        parseResp = await fetch(`${BACKEND}/parse-file`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ data: selectedFile.base64, name: selectedFile.name, userApiKey: getUserApiKey() }) });
         parseData = await parseResp.json();
       } catch(e) { showError("Upload failed: " + e.message); return; }
       if (!parseResp.ok || parseData.error) { showError("File error: " + (parseData?.error || "HTTP " + parseResp.status)); return; }
@@ -764,10 +838,10 @@
     setLoading("Reading your document…", "Extracting key insights");
     let resp, data;
     try {
-      resp = await fetch(`${BACKEND}/summarize`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages: [{ role: "user", content: userContent }] }) });
+      resp = await fetch(`${BACKEND}/summarize`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages: [{ role: "user", content: userContent }], userApiKey: getUserApiKey() }) });
       data = await resp.json();
     } catch(e) { showError("Network error: " + e.message); return; }
-    if (!resp.ok || data.error) { showError(data.error?.message || "HTTP " + resp.status); return; }
+    if (!resp.ok || data.error) { showError(data.error?.message || data.error || "HTTP " + resp.status); return; }
     if (!data.choices) { showError("Unexpected response."); return; }
 
     const raw = data.choices?.[0]?.message?.content?.trim() || "";
@@ -801,7 +875,7 @@
     errEl.style.display = 'none';
     const query = document.getElementById('extract-query').value.trim();
     if (!query) { errEl.textContent = "⚠ Please describe what to extract."; errEl.style.display = 'block'; return; }
-    let body = { query, format: extractFormat };
+    let body = { query, format: extractFormat, userApiKey: getUserApiKey() };
     if (extractTab === 'file') {
       if (!extractFile) { errEl.textContent = "⚠ Please select a file."; errEl.style.display = 'block'; return; }
       body.data = extractFile.base64; body.name = extractFile.name;
@@ -839,7 +913,7 @@
     const errEl = document.getElementById('translate-error');
     errEl.style.display = 'none';
     const target = document.getElementById('translate-target').value;
-    let body = { targetLanguage: target, format: translateFormat };
+    let body = { targetLanguage: target, format: translateFormat, userApiKey: getUserApiKey() };
     if (translateTab === 'text') {
       const t = document.getElementById('translate-text-input').value.trim();
       if (t.length < 10) { errEl.textContent = "⚠ Please paste some text."; errEl.style.display = 'block'; return; }
@@ -882,7 +956,7 @@
     document.getElementById('compare-result').style.display = 'none';
     let resp, data;
     try {
-      resp = await fetch(`${BACKEND}/compare`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ file1: { data: compareFile1.base64, name: compareFile1.name }, file2: { data: compareFile2.base64, name: compareFile2.name } }) });
+      resp = await fetch(`${BACKEND}/compare`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ file1: { data: compareFile1.base64, name: compareFile1.name }, file2: { data: compareFile2.base64, name: compareFile2.name }, userApiKey: getUserApiKey() }) });
       data = await resp.json();
     } catch(e) {
       document.getElementById('compare-input').style.display = 'block';
