@@ -14,8 +14,7 @@ app.use(express.json({ limit: "100mb" }));
 app.use(express.static(path.join(__dirname)));
 
 app.get("/health", (req, res) => {
-  res.json({ status: "ok", version: "11.0", service: "Accipiter API", hasGeminiKey: !!process.env.GEMINI_API_KEY });
-});
+    res.json({ status: "ok", version: "12.0", service: "Accipiter API", hasGeminiKey: !!process.env.GEMINI_API_KEY });
 
 async function extractText(base64, name) {
   const buffer = Buffer.from(base64, "base64");
