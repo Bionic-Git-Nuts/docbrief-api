@@ -14,7 +14,7 @@ app.use(express.json({ limit: "100mb" }));
 app.use(express.static(path.join(__dirname)));
 
 app.get("/health", (req, res) => {
-  res.json({ status: "ok", version: "10.0", service: "DocBrief API", hasGeminiKey: !!process.env.GEMINI_API_KEY });
+  res.json({ status: "ok", version: "11.0", service: "Accipiter API", hasGeminiKey: !!process.env.GEMINI_API_KEY });
 });
 
 async function extractText(base64, name) {
@@ -30,16 +30,25 @@ async function extractText(base64, name) {
   } else {
     text = buffer.toString("utf-8");
   }
-  return text.replace(/\s+/g, " ").trim();
+  // Clean and hard limit to stay within Gemini free tier
+  text = text.replace(/\s+/g, " ").trim();
+  if (text.length > 10000) {
+    text = text.slice(0, 10000) + " [Document truncated]";
+  }
+  return text;
 }
 
 async function fetchUrl(url) {
   const resp = await fetch(url);
   const html = await resp.text();
-  return html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 50000);
+  let text = html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  if (text.length > 10000) text = text.slice(0, 10000) + " [Truncated]";
+  return text;
 }
 
-async function callGemini(apiKey, prompt, maxTokens = 2000) {
+async function callGemini(apiKey, prompt, maxTokens = 1000) {
+  // Hard cap prompt length
+  if (prompt.length > 12000) prompt = prompt.slice(0, 12000) + " [Truncated]";
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
     {
@@ -80,16 +89,15 @@ app.post("/parse-file", async (req, res) => {
   }
 });
 
-
-
 app.post("/summarize", async (req, res) => {
   try {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return res.status(500).json({ error: "GEMINI_API_KEY not set" });
     const { messages } = req.body;
     if (!messages) return res.status(400).json({ error: "Missing messages" });
-    const userMessage = messages.find(m => m.role === "user")?.content || "";
-    const text = await callGemini(apiKey, userMessage, 1500);
+    let userMessage = messages.find(m => m.role === "user")?.content || "";
+    if (userMessage.length > 12000) userMessage = userMessage.slice(0, 12000) + " [Truncated]";
+    const text = await callGemini(apiKey, userMessage, 1000);
     res.json({ choices: [{ message: { content: text } }] });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -120,12 +128,12 @@ Return ONLY a JSON object in this exact format, no other text:
 }
 
 DOCUMENT 1 (${file1.name}):
-${text1.slice(0, 15000)}
+${text1.slice(0, 4000)}
 
 DOCUMENT 2 (${file2.name}):
-${text2.slice(0, 15000)}`;
+${text2.slice(0, 4000)}`;
 
-    const result = await callGemini(apiKey, prompt, 2000);
+    const result = await callGemini(apiKey, prompt, 1000);
     res.json({ result });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -145,7 +153,7 @@ app.post("/extract", async (req, res) => {
     } else if (data && name) {
       sourceText = await extractText(data, name);
     } else if (pastedText) {
-      sourceText = pastedText;
+      sourceText = pastedText.slice(0, 10000);
     } else {
       return res.status(400).json({ error: "Missing text, file or URL" });
     }
@@ -156,9 +164,9 @@ Present the extracted information clearly and completely. Use plain text with li
 Do not include any introduction or explanation — just the extracted content.
 
 DOCUMENT:
-${sourceText.slice(0, 50000)}`;
+${sourceText}`;
 
-    const extracted = await callGemini(apiKey, prompt, 3000);
+    const extracted = await callGemini(apiKey, prompt, 1000);
 
     if (format === "txt") {
       res.setHeader("Content-Type", "text/plain");
@@ -188,7 +196,7 @@ app.post("/translate", async (req, res) => {
     } else if (data && name) {
       sourceText = await extractText(data, name);
     } else if (pastedText) {
-      sourceText = pastedText;
+      sourceText = pastedText.slice(0, 10000);
     } else {
       return res.status(400).json({ error: "Missing text, file or URL" });
     }
@@ -196,9 +204,9 @@ app.post("/translate", async (req, res) => {
     const prompt = `Translate the following document to ${targetLanguage}. Preserve the original formatting and structure as much as possible. Output only the translated text, nothing else.
 
 DOCUMENT:
-${sourceText.slice(0, 50000)}`;
+${sourceText}`;
 
-    const translated = await callGemini(apiKey, prompt, 4000);
+    const translated = await callGemini(apiKey, prompt, 1000);
 
     if (format === "txt") {
       res.setHeader("Content-Type", "text/plain");
@@ -215,4 +223,4 @@ ${sourceText.slice(0, 50000)}`;
   }
 });
 
-app.listen(PORT, () => console.log(`DocBrief v10.0 running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Accipiter v11.0 running on port ${PORT}`));
