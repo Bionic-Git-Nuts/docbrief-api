@@ -14,7 +14,7 @@ app.use(express.json({ limit: "100mb" }));
 app.use(express.static(path.join(__dirname)));
 
 app.get("/health", (req, res) => {
-  res.json({ status: "ok", version: "12.0", service: "Accipiter API", hasGeminiKey: !!process.env.GEMINI_API_KEY });
+  res.json({ status: "ok", version: "13.0", service: "Accipiter API", hasGeminiKey: !!process.env.GEMINI_API_KEY });
 });
 
 async function extractText(base64, name) {
@@ -59,9 +59,7 @@ async function callGemini(apiKey, prompt, maxTokens = 1000) {
     }
   );
   const data = await response.json();
-  console.log("Gemini status:", response.status);
-  console.log("Gemini response:", JSON.stringify(data).slice(0, 500));
-  if (!response.ok) throw new Error(data.error?.message || "Gemini error: " + JSON.stringify(data).slice(0, 300));
+  if (!response.ok) throw new Error(data.error?.message || "Gemini error");
   return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
 }
 
@@ -78,6 +76,11 @@ async function buildDocx(title, content) {
   return await Packer.toBuffer(doc);
 }
 
+// Helper to get API key — user key takes priority over env key
+function getApiKey(req) {
+  return req.body.userApiKey || process.env.GEMINI_API_KEY;
+}
+
 app.post("/parse-file", async (req, res) => {
   try {
     const { data, name } = req.body;
@@ -91,8 +94,8 @@ app.post("/parse-file", async (req, res) => {
 
 app.post("/summarize", async (req, res) => {
   try {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) return res.status(500).json({ error: "GEMINI_API_KEY not set" });
+    const apiKey = getApiKey(req);
+    if (!apiKey) return res.status(500).json({ error: "No API key set. Please add your Gemini API key in Settings." });
     const { messages } = req.body;
     if (!messages) return res.status(400).json({ error: "Missing messages" });
     let userMessage = messages.find(m => m.role === "user")?.content || "";
@@ -100,15 +103,14 @@ app.post("/summarize", async (req, res) => {
     const text = await callGemini(apiKey, userMessage, 1000);
     res.json({ choices: [{ message: { content: text } }] });
   } catch (err) {
-    console.error("Summarize error:", err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
 app.post("/compare", async (req, res) => {
   try {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) return res.status(500).json({ error: "GEMINI_API_KEY not set" });
+    const apiKey = getApiKey(req);
+    if (!apiKey) return res.status(500).json({ error: "No API key set. Please add your Gemini API key in Settings." });
     const { file1, file2 } = req.body;
     if (!file1 || !file2) return res.status(400).json({ error: "Missing files" });
     const text1 = await extractText(file1.data, file1.name);
@@ -143,8 +145,8 @@ ${text2.slice(0, 4000)}`;
 
 app.post("/extract", async (req, res) => {
   try {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) return res.status(500).json({ error: "GEMINI_API_KEY not set" });
+    const apiKey = getApiKey(req);
+    if (!apiKey) return res.status(500).json({ error: "No API key set. Please add your Gemini API key in Settings." });
     const { data, name, url, text: pastedText, query, format } = req.body;
     if (!query) return res.status(400).json({ error: "Missing query" });
 
@@ -186,8 +188,8 @@ ${sourceText}`;
 
 app.post("/translate", async (req, res) => {
   try {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) return res.status(500).json({ error: "GEMINI_API_KEY not set" });
+    const apiKey = getApiKey(req);
+    if (!apiKey) return res.status(500).json({ error: "No API key set. Please add your Gemini API key in Settings." });
     const { data, name, url, text: pastedText, targetLanguage, format } = req.body;
     if (!targetLanguage) return res.status(400).json({ error: "Missing target language" });
 
@@ -224,4 +226,4 @@ ${sourceText}`;
   }
 });
 
-app.listen(PORT, () => console.log(`Accipiter v12.0 running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Accipiter v13.0 running on port ${PORT}`));
