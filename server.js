@@ -47,7 +47,6 @@ async function fetchUrl(url) {
 }
 
 async function callGemini(apiKey, prompt, maxTokens = 1000) {
-  // Hard cap prompt length
   if (prompt.length > 12000) prompt = prompt.slice(0, 12000) + " [Truncated]";
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
@@ -61,7 +60,9 @@ async function callGemini(apiKey, prompt, maxTokens = 1000) {
     }
   );
   const data = await response.json();
-  if (!response.ok) throw new Error(data.error?.message || "Gemini error");
+  console.log("Gemini status:", response.status);
+  console.log("Gemini response:", JSON.stringify(data).slice(0, 500));
+  if (!response.ok) throw new Error(data.error?.message || "Gemini error: " + JSON.stringify(data).slice(0, 300));
   return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
 }
 
