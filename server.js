@@ -14,7 +14,7 @@ app.use(express.json({ limit: "100mb" }));
 app.use(express.static(path.join(__dirname)));
 
 app.get("/health", (req, res) => {
-  res.json({ status: "ok", version: "14.0", service: "Accipiter API", hasApiKey: !!process.env.MISTRAL_API_KEY });
+  res.json({ status: "ok", version: "15.0", service: "Accipiter API", hasApiKey: !!process.env.MISTRAL_API_KEY });
 });
 
 async function extractText(base64, name) {
@@ -31,9 +31,7 @@ async function extractText(base64, name) {
     text = buffer.toString("utf-8");
   }
   text = text.replace(/\s+/g, " ").trim();
-  if (text.length > 5000) {
-    text = text.slice(0, 5000) + " [Document truncated]";
-  }
+  if (text.length > 5000) text = text.slice(0, 5000) + " [Document truncated]";
   return text;
 }
 
@@ -49,10 +47,7 @@ async function callMistral(apiKey, prompt, maxTokens = 1000) {
   if (prompt.length > 6000) prompt = prompt.slice(0, 6000) + " [Truncated]";
   const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`
-    },
+    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
     body: JSON.stringify({
       model: "mistral-small-latest",
       messages: [{ role: "user", content: prompt }],
@@ -69,9 +64,7 @@ async function buildDocx(title, content) {
   const paragraphs = [
     new Paragraph({ text: title, heading: HeadingLevel.HEADING_1 }),
     new Paragraph({ text: "" }),
-    ...lines.map(line => new Paragraph({
-      children: [new TextRun({ text: line.trim(), size: 24 })]
-    }))
+    ...lines.map(line => new Paragraph({ children: [new TextRun({ text: line.trim(), size: 24 })] }))
   ];
   const doc = new Document({ sections: [{ properties: {}, children: paragraphs }] });
   return await Packer.toBuffer(doc);
@@ -87,9 +80,48 @@ app.post("/parse-file", async (req, res) => {
     if (!data || !name) return res.status(400).json({ error: "Missing file data" });
     const text = await extractText(data, name);
     res.json({ text });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.post("/fetch-rss", async (req, res) => {
+  try {
+    const { url } = req.body;
+    if (!url) return res.status(400).json({ error: "Missing URL" });
+    const resp = await fetch(url, { headers: { "User-Agent": "Accipiter/1.0" } });
+    const xml = await resp.text();
+
+    // Parse RSS/Atom items
+    const items = [];
+    const itemRegex = /<item[^>]*>([\s\S]*?)<\/item>|<entry[^>]*>([\s\S]*?)<\/entry>/gi;
+    let match;
+    while ((match = itemRegex.exec(xml)) !== null && items.length < 20) {
+      const block = match[1] || match[2];
+      const title = (block.match(/<title[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/) || [])[1] || "Untitled";
+      const link = (block.match(/<link[^>]*>([^<]+)<\/link>/) || block.match(/<link[^>]*href="([^"]+)"/) || [])[1] || "";
+      const desc = (block.match(/<description[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/description>/) || block.match(/<summary[^>]*>([\s\S]*?)<\/summary>/) || [])[1] || "";
+      const pubDate = (block.match(/<pubDate[^>]*>([\s\S]*?)<\/pubDate>/) || block.match(/<published[^>]*>([\s\S]*?)<\/published>/) || block.match(/<updated[^>]*>([\s\S]*?)<\/updated>/) || [])[1] || "";
+      items.push({
+        title: title.replace(/<[^>]*>/g, "").trim(),
+        link: link.trim(),
+        description: desc.replace(/<[^>]*>/g, "").trim().slice(0, 300),
+        pubDate: pubDate.trim()
+      });
+    }
+
+    // Get feed title
+    const feedTitle = (xml.match(/<title[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/) || [])[1] || url;
+
+    res.json({ title: feedTitle.replace(/<[^>]*>/g, "").trim(), items });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.post("/fetch-article", async (req, res) => {
+  try {
+    const { url } = req.body;
+    if (!url) return res.status(400).json({ error: "Missing URL" });
+    const text = await fetchUrl(url);
+    res.json({ text });
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 app.post("/summarize", async (req, res) => {
@@ -102,9 +134,7 @@ app.post("/summarize", async (req, res) => {
     if (userMessage.length > 6000) userMessage = userMessage.slice(0, 6000) + " [Truncated]";
     const text = await callMistral(apiKey, userMessage, 1000);
     res.json({ choices: [{ message: { content: text } }] });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 app.post("/compare", async (req, res) => {
@@ -138,9 +168,7 @@ ${text2.slice(0, 4000)}`;
 
     const result = await callMistral(apiKey, prompt, 1000);
     res.json({ result });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 app.post("/extract", async (req, res) => {
@@ -149,28 +177,13 @@ app.post("/extract", async (req, res) => {
     if (!apiKey) return res.status(500).json({ error: "No API key set." });
     const { data, name, url, text: pastedText, query, format } = req.body;
     if (!query) return res.status(400).json({ error: "Missing query" });
-
     let sourceText = "";
-    if (url) {
-      sourceText = await fetchUrl(url);
-    } else if (data && name) {
-      sourceText = await extractText(data, name);
-    } else if (pastedText) {
-      sourceText = pastedText.slice(0, 5000);
-    } else {
-      return res.status(400).json({ error: "Missing text, file or URL" });
-    }
-
-    const prompt = `From the following document, extract: ${query}
-
-Present the extracted information clearly and completely. Use plain text with line breaks to separate items.
-Do not include any introduction or explanation — just the extracted content.
-
-DOCUMENT:
-${sourceText}`;
-
+    if (url) { sourceText = await fetchUrl(url); }
+    else if (data && name) { sourceText = await extractText(data, name); }
+    else if (pastedText) { sourceText = pastedText.slice(0, 5000); }
+    else { return res.status(400).json({ error: "Missing text, file or URL" }); }
+    const prompt = `From the following document, extract: ${query}\n\nPresent the extracted information clearly and completely. Use plain text with line breaks to separate items.\nDo not include any introduction or explanation — just the extracted content.\n\nDOCUMENT:\n${sourceText}`;
     const extracted = await callMistral(apiKey, prompt, 1000);
-
     if (format === "txt") {
       res.setHeader("Content-Type", "text/plain");
       res.setHeader("Content-Disposition", `attachment; filename="extracted.txt"`);
@@ -181,9 +194,7 @@ ${sourceText}`;
       res.setHeader("Content-Disposition", `attachment; filename="extracted.docx"`);
       res.send(buffer);
     }
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 app.post("/translate", async (req, res) => {
@@ -192,25 +203,13 @@ app.post("/translate", async (req, res) => {
     if (!apiKey) return res.status(500).json({ error: "No API key set." });
     const { data, name, url, text: pastedText, targetLanguage, format } = req.body;
     if (!targetLanguage) return res.status(400).json({ error: "Missing target language" });
-
     let sourceText = "";
-    if (url) {
-      sourceText = await fetchUrl(url);
-    } else if (data && name) {
-      sourceText = await extractText(data, name);
-    } else if (pastedText) {
-      sourceText = pastedText.slice(0, 5000);
-    } else {
-      return res.status(400).json({ error: "Missing text, file or URL" });
-    }
-
-    const prompt = `Translate the following document to ${targetLanguage}. Preserve the original formatting and structure as much as possible. Output only the translated text, nothing else.
-
-DOCUMENT:
-${sourceText}`;
-
+    if (url) { sourceText = await fetchUrl(url); }
+    else if (data && name) { sourceText = await extractText(data, name); }
+    else if (pastedText) { sourceText = pastedText.slice(0, 5000); }
+    else { return res.status(400).json({ error: "Missing text, file or URL" }); }
+    const prompt = `Translate the following document to ${targetLanguage}. Preserve the original formatting and structure as much as possible. Output only the translated text, nothing else.\n\nDOCUMENT:\n${sourceText}`;
     const translated = await callMistral(apiKey, prompt, 1000);
-
     if (format === "txt") {
       res.setHeader("Content-Type", "text/plain");
       res.setHeader("Content-Disposition", `attachment; filename="translated_${targetLanguage}.txt"`);
@@ -221,9 +220,7 @@ ${sourceText}`;
       res.setHeader("Content-Disposition", `attachment; filename="translated_${targetLanguage}.docx"`);
       res.send(buffer);
     }
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.listen(PORT, () => console.log(`Accipiter v14.0 running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Accipiter v15.0 running on port ${PORT}`));
