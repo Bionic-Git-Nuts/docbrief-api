@@ -14,7 +14,7 @@ app.use(express.json({ limit: "100mb" }));
 app.use(express.static(path.join(__dirname)));
 
 app.get("/health", (req, res) => {
-  res.json({ status: "ok", version: "13.0", service: "Accipiter API", hasGeminiKey: !!process.env.GEMINI_API_KEY });
+  res.json({ status: "ok", version: "14.0", service: "Accipiter API", hasApiKey: !!process.env.MISTRAL_API_KEY });
 });
 
 async function extractText(base64, name) {
@@ -45,22 +45,23 @@ async function fetchUrl(url) {
   return text;
 }
 
-async function callGemini(apiKey, prompt, maxTokens = 1000) {
+async function callMistral(apiKey, prompt, maxTokens = 1000) {
   if (prompt.length > 6000) prompt = prompt.slice(0, 6000) + " [Truncated]";
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { maxOutputTokens: maxTokens }
-      }),
-    }
-  );
+  const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: "mistral-small-latest",
+      messages: [{ role: "user", content: prompt }],
+      max_tokens: maxTokens
+    }),
+  });
   const data = await response.json();
-  if (!response.ok) throw new Error(data.error?.message || "Gemini error");
-  return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+  if (!response.ok) throw new Error(data.message || data.error?.message || "Mistral error");
+  return data.choices?.[0]?.message?.content || "";
 }
 
 async function buildDocx(title, content) {
@@ -76,9 +77,8 @@ async function buildDocx(title, content) {
   return await Packer.toBuffer(doc);
 }
 
-// Helper to get API key — user key takes priority over env key
 function getApiKey(req) {
-  return req.body.userApiKey || process.env.GEMINI_API_KEY;
+  return req.body.userApiKey || process.env.MISTRAL_API_KEY;
 }
 
 app.post("/parse-file", async (req, res) => {
@@ -95,12 +95,12 @@ app.post("/parse-file", async (req, res) => {
 app.post("/summarize", async (req, res) => {
   try {
     const apiKey = getApiKey(req);
-    if (!apiKey) return res.status(500).json({ error: "No API key set. Please add your Gemini API key in Settings." });
+    if (!apiKey) return res.status(500).json({ error: "No API key set. Please add your Mistral API key in Settings." });
     const { messages } = req.body;
     if (!messages) return res.status(400).json({ error: "Missing messages" });
     let userMessage = messages.find(m => m.role === "user")?.content || "";
     if (userMessage.length > 6000) userMessage = userMessage.slice(0, 6000) + " [Truncated]";
-    const text = await callGemini(apiKey, userMessage, 1000);
+    const text = await callMistral(apiKey, userMessage, 1000);
     res.json({ choices: [{ message: { content: text } }] });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -110,7 +110,7 @@ app.post("/summarize", async (req, res) => {
 app.post("/compare", async (req, res) => {
   try {
     const apiKey = getApiKey(req);
-    if (!apiKey) return res.status(500).json({ error: "No API key set. Please add your Gemini API key in Settings." });
+    if (!apiKey) return res.status(500).json({ error: "No API key set." });
     const { file1, file2 } = req.body;
     if (!file1 || !file2) return res.status(400).json({ error: "Missing files" });
     const text1 = await extractText(file1.data, file1.name);
@@ -136,7 +136,7 @@ ${text1.slice(0, 4000)}
 DOCUMENT 2 (${file2.name}):
 ${text2.slice(0, 4000)}`;
 
-    const result = await callGemini(apiKey, prompt, 1000);
+    const result = await callMistral(apiKey, prompt, 1000);
     res.json({ result });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -146,7 +146,7 @@ ${text2.slice(0, 4000)}`;
 app.post("/extract", async (req, res) => {
   try {
     const apiKey = getApiKey(req);
-    if (!apiKey) return res.status(500).json({ error: "No API key set. Please add your Gemini API key in Settings." });
+    if (!apiKey) return res.status(500).json({ error: "No API key set." });
     const { data, name, url, text: pastedText, query, format } = req.body;
     if (!query) return res.status(400).json({ error: "Missing query" });
 
@@ -169,7 +169,7 @@ Do not include any introduction or explanation — just the extracted content.
 DOCUMENT:
 ${sourceText}`;
 
-    const extracted = await callGemini(apiKey, prompt, 1000);
+    const extracted = await callMistral(apiKey, prompt, 1000);
 
     if (format === "txt") {
       res.setHeader("Content-Type", "text/plain");
@@ -189,7 +189,7 @@ ${sourceText}`;
 app.post("/translate", async (req, res) => {
   try {
     const apiKey = getApiKey(req);
-    if (!apiKey) return res.status(500).json({ error: "No API key set. Please add your Gemini API key in Settings." });
+    if (!apiKey) return res.status(500).json({ error: "No API key set." });
     const { data, name, url, text: pastedText, targetLanguage, format } = req.body;
     if (!targetLanguage) return res.status(400).json({ error: "Missing target language" });
 
@@ -209,7 +209,7 @@ app.post("/translate", async (req, res) => {
 DOCUMENT:
 ${sourceText}`;
 
-    const translated = await callGemini(apiKey, prompt, 1000);
+    const translated = await callMistral(apiKey, prompt, 1000);
 
     if (format === "txt") {
       res.setHeader("Content-Type", "text/plain");
@@ -226,4 +226,4 @@ ${sourceText}`;
   }
 });
 
-app.listen(PORT, () => console.log(`Accipiter v13.0 running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Accipiter v14.0 running on port ${PORT}`));
