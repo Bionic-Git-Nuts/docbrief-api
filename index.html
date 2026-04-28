@@ -23,6 +23,7 @@
     --blue: #4a9eff; --blue-bg: rgba(74,158,255,0.10); --blue-border: rgba(74,158,255,0.25);
     --green: #4caf7d; --green-bg: rgba(76,175,125,0.10); --green-border: rgba(76,175,125,0.25);
     --purple: #a78bfa; --purple-bg: rgba(167,139,250,0.10); --purple-border: rgba(167,139,250,0.25);
+    --yellow: #fbbf24; --yellow-bg: rgba(251,191,36,0.10); --yellow-border: rgba(251,191,36,0.25);
   }
   html, body { min-height: 100vh; background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; -webkit-font-smoothing: antialiased; }
   body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px); background-size: 48px 48px; pointer-events: none; z-index: 0; }
@@ -48,6 +49,7 @@
   .action-btn-translate { background: var(--purple-bg); border-color: var(--purple-border); color: var(--purple); }
   .action-btn-extract { background: var(--green-bg); border-color: var(--green-border); color: var(--green); }
   .action-btn-compare { background: var(--blue-bg); border-color: var(--blue-border); color: var(--blue); }
+  .action-btn-feeds { background: var(--yellow-bg); border-color: var(--yellow-border); color: var(--yellow); }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 16px; animation: fadeUp 0.5s 0.22s ease both; }
   .card-label { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
@@ -81,6 +83,7 @@
   .btn-blue { background: linear-gradient(135deg, #4a9eff, #1a6fd4); }
   .btn-green { background: linear-gradient(135deg, #4caf7d, #2d8a5e); }
   .btn-purple { background: linear-gradient(135deg, #a78bfa, #7c5cbf); }
+  .btn-yellow { background: linear-gradient(135deg, #fbbf24, #d97706); }
   .loading { background: var(--surface); border: 1px solid var(--accent-border); border-radius: 16px; padding: 44px 24px; text-align: center; animation: fadeUp 0.3s ease both; }
   .spinner { width: 38px; height: 38px; border: 3px solid rgba(255,154,60,0.15); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.75s linear infinite; margin: 0 auto 18px; }
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -151,6 +154,44 @@
   .key-status-dot.inactive { background: rgba(255,255,255,0.2); }
   .settings-note { font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-top: 12px; }
   .settings-note a { color: var(--accent); text-decoration: none; }
+
+  /* Feeds */
+  .feed-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+  .feed-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: border-color 0.15s; }
+  .feed-item:hover { border-color: rgba(251,191,36,0.3); }
+  .feed-item-icon { font-size: 20px; flex-shrink: 0; }
+  .feed-item-info { flex: 1; overflow: hidden; }
+  .feed-item-title { font-size: 13px; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .feed-item-url { font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px; }
+  .feed-item-delete { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 14px; padding: 4px; flex-shrink: 0; }
+  .feed-empty { text-align: center; padding: 32px 20px; color: var(--text-muted); font-size: 14px; }
+  .suggested-feeds { display: flex; flex-direction: column; gap: 8px; }
+  .suggested-feed { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(251,191,36,0.05); border: 1px solid rgba(251,191,36,0.15); border-radius: 10px; cursor: pointer; transition: all 0.15s; }
+  .suggested-feed:hover { background: rgba(251,191,36,0.1); border-color: rgba(251,191,36,0.3); }
+  .suggested-feed-icon { font-size: 18px; }
+  .suggested-feed-info { flex: 1; }
+  .suggested-feed-name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .suggested-feed-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .suggested-feed-add { font-size: 18px; color: var(--yellow); }
+  .article-list { display: flex; flex-direction: column; gap: 12px; }
+  .article-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; transition: border-color 0.15s; }
+  .article-item:hover { border-color: rgba(251,191,36,0.2); }
+  .article-title { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.4; margin-bottom: 6px; }
+  .article-desc { font-size: 13px; color: var(--text-dim); line-height: 1.5; margin-bottom: 10px; }
+  .article-date { font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; margin-bottom: 10px; }
+  .article-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .article-action-btn { padding: 6px 12px; border-radius: 8px; border: 1px solid; font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+  .article-action-btn:hover { opacity: 0.8; }
+  .btn-summarize { background: var(--accent-bg); border-color: var(--accent-border); color: var(--accent); }
+  .btn-extract-art { background: var(--green-bg); border-color: var(--green-border); color: var(--green); }
+  .btn-open { background: rgba(255,255,255,0.04); border-color: var(--border); color: var(--text-dim); text-decoration: none; display: inline-flex; align-items: center; }
+  .feed-back-btn { display: flex; align-items: center; gap: 8px; background: none; border: none; color: var(--text-dim); font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; padding: 0; margin-bottom: 16px; }
+  .feed-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .feed-header-title { font-family: 'Instrument Serif', serif; font-size: 20px; color: #f0ede6; }
+  .feed-loading { text-align: center; padding: 40px; color: var(--text-muted); font-size: 14px; }
+  .add-feed-row { display: flex; gap: 8px; }
+  .add-feed-row input { flex: 1; }
+  .add-feed-btn { padding: 13px 16px; border: none; border-radius: 10px; background: linear-gradient(135deg, #fbbf24, #d97706); color: #fff; font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -183,6 +224,7 @@
         <button class="action-btn action-btn-translate" onclick="showScreen('translate')">⟳ Translate</button>
         <button class="action-btn action-btn-extract" onclick="showScreen('extract')">⬡ Extract</button>
         <button class="action-btn action-btn-compare" onclick="showScreen('compare')">⇄ Compare</button>
+        <button class="action-btn action-btn-feeds" onclick="showScreen('feeds')">📡 Feeds</button>
       </div>
       <div class="card">
         <div class="card-label">Input source</div>
@@ -277,6 +319,126 @@
         <div class="result-body" id="result-body"></div>
       </div>
       <button class="new-btn" onclick="reset()">+ Summarize another document</button>
+    </div>
+  </div>
+
+  <!-- Feeds screen -->
+  <div id="feeds-screen" style="display:none">
+    <div class="logo-row">
+      <div class="logo-left">
+        <div class="logo-icon"><img src="/Owl-logo.png" alt="Accipiter"></div>
+        <span class="logo-text">Accipiter</span>
+      </div>
+    </div>
+    <button class="back-btn" onclick="showScreen('main')">← Back</button>
+
+    <!-- Feed list view -->
+    <div id="feeds-list-view">
+      <div class="card">
+        <div class="card-label">Add RSS Feed</div>
+        <div class="add-feed-row">
+          <input class="url-input" id="feed-url-input" type="url" placeholder="https://example.com/feed.xml">
+          <button class="add-feed-btn" onclick="addFeed()">+ Add</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">My Feeds</div>
+        <div id="my-feeds-list" class="feed-list">
+          <div class="feed-empty">No feeds added yet. Add one above or try a suggestion below.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Suggested Feeds</div>
+        <div class="suggested-feeds">
+          <div class="suggested-feed" onclick="addSuggestedFeed('https://rss.arxiv.org/rss/cs.AI', 'arXiv — AI Research', '📄')">
+            <span class="suggested-feed-icon">📄</span>
+            <div class="suggested-feed-info">
+              <div class="suggested-feed-name">arXiv — AI Research</div>
+              <div class="suggested-feed-desc">Latest AI & machine learning papers</div>
+            </div>
+            <span class="suggested-feed-add">+</span>
+          </div>
+          <div class="suggested-feed" onclick="addSuggestedFeed('https://feeds.reuters.com/reuters/topNews', 'Reuters — Top News', '📰')">
+            <span class="suggested-feed-icon">📰</span>
+            <div class="suggested-feed-info">
+              <div class="suggested-feed-name">Reuters — Top News</div>
+              <div class="suggested-feed-desc">Breaking international news</div>
+            </div>
+            <span class="suggested-feed-add">+</span>
+          </div>
+          <div class="suggested-feed" onclick="addSuggestedFeed('https://feeds.bbci.co.uk/news/rss.xml', 'BBC News', '🌍')">
+            <span class="suggested-feed-icon">🌍</span>
+            <div class="suggested-feed-info">
+              <div class="suggested-feed-name">BBC News</div>
+              <div class="suggested-feed-desc">World news from the BBC</div>
+            </div>
+            <span class="suggested-feed-add">+</span>
+          </div>
+          <div class="suggested-feed" onclick="addSuggestedFeed('https://hnrss.org/frontpage', 'Hacker News', '💻')">
+            <span class="suggested-feed-icon">💻</span>
+            <div class="suggested-feed-info">
+              <div class="suggested-feed-name">Hacker News</div>
+              <div class="suggested-feed-desc">Top tech stories and discussions</div>
+            </div>
+            <span class="suggested-feed-add">+</span>
+          </div>
+          <div class="suggested-feed" onclick="addSuggestedFeed('https://pubmed.ncbi.nlm.nih.gov/rss/search/1YnKQ8EKXhf-XbkDFz0ftnPUBVvFp5MpZCTjdRZWMWYDX58WuK/?limit=15&utm_campaign=pubmed-2&fc=20231128154918', 'PubMed — Medical Research', '🔬')">
+            <span class="suggested-feed-icon">🔬</span>
+            <div class="suggested-feed-info">
+              <div class="suggested-feed-name">PubMed — Medical Research</div>
+              <div class="suggested-feed-desc">Latest biomedical literature</div>
+            </div>
+            <span class="suggested-feed-add">+</span>
+          </div>
+          <div class="suggested-feed" onclick="addSuggestedFeed('https://www.nature.com/nature.rss', 'Nature Journal', '🧬')">
+            <span class="suggested-feed-icon">🧬</span>
+            <div class="suggested-feed-info">
+              <div class="suggested-feed-name">Nature Journal</div>
+              <div class="suggested-feed-desc">Cutting-edge scientific research</div>
+            </div>
+            <span class="suggested-feed-add">+</span>
+          </div>
+          <div class="suggested-feed" onclick="addSuggestedFeed('https://techcrunch.com/feed/', 'TechCrunch', '🚀')">
+            <span class="suggested-feed-icon">🚀</span>
+            <div class="suggested-feed-info">
+              <div class="suggested-feed-name">TechCrunch</div>
+              <div class="suggested-feed-desc">Startup and technology news</div>
+            </div>
+            <span class="suggested-feed-add">+</span>
+          </div>
+          <div class="suggested-feed" onclick="addSuggestedFeed('https://www.theguardian.com/world/rss', 'The Guardian — World', '🗞️')">
+            <span class="suggested-feed-icon">🗞️</span>
+            <div class="suggested-feed-info">
+              <div class="suggested-feed-name">The Guardian — World</div>
+              <div class="suggested-feed-desc">Global news and analysis</div>
+            </div>
+            <span class="suggested-feed-add">+</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="background: rgba(251,191,36,0.04); border-color: rgba(251,191,36,0.15);">
+        <div class="card-label" style="color: var(--yellow);">X / Twitter accounts</div>
+        <p style="font-size:13px;color:var(--text-dim);line-height:1.6;">
+          To follow X accounts as RSS feeds, use <strong style="color:var(--text)">rsshub.app</strong>.<br>
+          Format: <span style="font-family:'JetBrains Mono',monospace;color:var(--yellow);font-size:12px">https://rsshub.app/twitter/user/USERNAME</span><br><br>
+          Paste that URL in the Add Feed field above.
+        </p>
+      </div>
+    </div>
+
+    <!-- Articles view -->
+    <div id="feeds-articles-view" style="display:none">
+      <button class="feed-back-btn" onclick="showFeedsList()">← All Feeds</button>
+      <div class="feed-header">
+        <div class="feed-header-title" id="feed-view-title">Feed</div>
+        <button class="top-btn" onclick="refreshCurrentFeed()">↻ Refresh</button>
+      </div>
+      <div id="feed-articles-container">
+        <div class="feed-loading">Loading articles…</div>
+      </div>
     </div>
   </div>
 
@@ -547,7 +709,10 @@
   let compareFile2 = null;
   let lastSummary = "";
   let lastCompareText = "";
+  let currentFeedUrl = "";
+  let currentFeedTitle = "";
 
+  // API Key
   function getUserApiKey() { return localStorage.getItem('accipiter_api_key') || ''; }
   function saveApiKey() {
     const key = document.getElementById('api-key-input').value.trim();
@@ -567,15 +732,11 @@
     const key = getUserApiKey();
     const dot = document.getElementById('key-dot');
     const text = document.getElementById('key-status-text');
-    if (key) {
-      dot.className = 'key-status-dot active';
-      text.textContent = 'Key saved ✓ — ' + key.slice(0, 8) + '…';
-    } else {
-      dot.className = 'key-status-dot inactive';
-      text.textContent = 'No key saved';
-    }
+    if (key) { dot.className = 'key-status-dot active'; text.textContent = 'Key saved ✓ — ' + key.slice(0, 8) + '…'; }
+    else { dot.className = 'key-status-dot inactive'; text.textContent = 'No key saved'; }
   }
 
+  // Quota
   function getQuota() {
     try {
       const q = JSON.parse(localStorage.getItem('accipiter_quota') || '{}');
@@ -606,11 +767,191 @@
   updateKeyStatus();
   setInterval(updateQuotaBar, 60000);
 
+  // Feeds
+  function getFeeds() { try { return JSON.parse(localStorage.getItem('accipiter_feeds') || '[]'); } catch { return []; } }
+  function saveFeeds(feeds) { localStorage.setItem('accipiter_feeds', JSON.stringify(feeds)); }
+
+  function renderFeedsList() {
+    const feeds = getFeeds();
+    const el = document.getElementById('my-feeds-list');
+    if (!feeds.length) {
+      el.innerHTML = '<div class="feed-empty">No feeds added yet. Add one above or try a suggestion below.</div>';
+      return;
+    }
+    el.innerHTML = feeds.map((f, i) => `
+      <div class="feed-item" onclick="openFeed('${f.url}', '${f.title}', '${f.icon}')">
+        <span class="feed-item-icon">${f.icon}</span>
+        <div class="feed-item-info">
+          <div class="feed-item-title">${f.title}</div>
+          <div class="feed-item-url">${f.url}</div>
+        </div>
+        <button class="feed-item-delete" onclick="event.stopPropagation();deleteFeed(${i})">✕</button>
+      </div>
+    `).join('');
+  }
+
+  function addFeed() {
+    const url = document.getElementById('feed-url-input').value.trim();
+    if (!url) { alert('Please enter a feed URL.'); return; }
+    const feeds = getFeeds();
+    if (feeds.find(f => f.url === url)) { alert('Feed already added.'); return; }
+    feeds.push({ url, title: url, icon: '📡' });
+    saveFeeds(feeds);
+    document.getElementById('feed-url-input').value = '';
+    renderFeedsList();
+    // Auto-open to load title
+    openFeed(url, url, '📡');
+  }
+
+  function addSuggestedFeed(url, title, icon) {
+    const feeds = getFeeds();
+    if (feeds.find(f => f.url === url)) { alert('Feed already added!'); return; }
+    feeds.push({ url, title, icon });
+    saveFeeds(feeds);
+    renderFeedsList();
+    openFeed(url, title, icon);
+  }
+
+  function deleteFeed(index) {
+    const feeds = getFeeds();
+    feeds.splice(index, 1);
+    saveFeeds(feeds);
+    renderFeedsList();
+  }
+
+  async function openFeed(url, title, icon) {
+    currentFeedUrl = url;
+    currentFeedTitle = title;
+    document.getElementById('feeds-list-view').style.display = 'none';
+    document.getElementById('feeds-articles-view').style.display = 'block';
+    document.getElementById('feed-view-title').textContent = title;
+    document.getElementById('feed-articles-container').innerHTML = '<div class="feed-loading">⏳ Loading articles…</div>';
+
+    try {
+      const resp = await fetch(`${BACKEND}/fetch-rss`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url })
+      });
+      const data = await resp.json();
+      if (!resp.ok || data.error) throw new Error(data.error || 'Failed to load feed');
+
+      // Update feed title
+      const feeds = getFeeds();
+      const feed = feeds.find(f => f.url === url);
+      if (feed && data.title && data.title !== url) {
+        feed.title = data.title;
+        feed.icon = icon;
+        saveFeeds(feeds);
+        renderFeedsList();
+        document.getElementById('feed-view-title').textContent = data.title;
+        currentFeedTitle = data.title;
+      }
+
+      if (!data.items || !data.items.length) {
+        document.getElementById('feed-articles-container').innerHTML = '<div class="feed-loading">No articles found.</div>';
+        return;
+      }
+
+      document.getElementById('feed-articles-container').innerHTML = `
+        <div class="article-list">
+          ${data.items.map((item, i) => `
+            <div class="article-item">
+              <div class="article-title">${item.title}</div>
+              ${item.pubDate ? `<div class="article-date">${item.pubDate}</div>` : ''}
+              ${item.description ? `<div class="article-desc">${item.description.slice(0, 200)}${item.description.length > 200 ? '…' : ''}</div>` : ''}
+              <div class="article-actions">
+                <button class="article-action-btn btn-summarize" onclick="summarizeArticle('${encodeURIComponent(item.link)}', '${encodeURIComponent(item.title)}')">▸ Summarize</button>
+                <button class="article-action-btn btn-extract-art" onclick="extractArticle('${encodeURIComponent(item.link)}', '${encodeURIComponent(item.title)}')">⬡ Extract</button>
+                ${item.link ? `<a class="article-action-btn btn-open" href="${item.link}" target="_blank">↗ Open</a>` : ''}
+              </div>
+            </div>
+          `).join('')}
+        </div>`;
+    } catch(e) {
+      document.getElementById('feed-articles-container').innerHTML = `<div class="feed-loading" style="color:rgba(255,100,100,0.8)">⚠ ${e.message}</div>`;
+    }
+  }
+
+  function refreshCurrentFeed() {
+    if (currentFeedUrl) openFeed(currentFeedUrl, currentFeedTitle, '📡');
+  }
+
+  function showFeedsList() {
+    document.getElementById('feeds-list-view').style.display = 'block';
+    document.getElementById('feeds-articles-view').style.display = 'none';
+  }
+
+  async function summarizeArticle(encodedUrl, encodedTitle) {
+    const url = decodeURIComponent(encodedUrl);
+    const title = decodeURIComponent(encodedTitle);
+    showScreen('main');
+    show('loading');
+    document.getElementById('loading-title').textContent = 'Fetching article…';
+    document.getElementById('loading-sub').textContent = title;
+
+    try {
+      const resp = await fetch(`${BACKEND}/fetch-article`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url })
+      });
+      const data = await resp.json();
+      if (!resp.ok || data.error) throw new Error(data.error || 'Failed to fetch article');
+
+      const language = document.getElementById('language-select').value;
+      const langInstr = language === 'auto' ? 'Detect the language and summarize in that language.' : language !== 'English' ? `Write the summary in ${language}.` : '';
+      const userContent = `Summarize this article. Length: moderate: 1 paragraph or 6-8 bullet points. Return ONLY a JSON array of bullet strings like ["Point one.", "Point two."]. No other text. ${langInstr}\n\nDOCUMENT:\n${data.text}`;
+
+      document.getElementById('loading-title').textContent = 'Summarizing…';
+      document.getElementById('loading-sub').textContent = 'Extracting key insights';
+
+      const sumResp = await fetch(`${BACKEND}/summarize`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [{ role: 'user', content: userContent }], userApiKey: getUserApiKey() })
+      });
+      const sumData = await sumResp.json();
+      if (!sumResp.ok || sumData.error) throw new Error(sumData.error || 'Summarize failed');
+
+      const raw = sumData.choices?.[0]?.message?.content?.trim() || "";
+      let summary;
+      try {
+        const clean = raw.replace(/^```[\w]*\n?/, "").replace(/\n?```$/, "").trim();
+        const parsed = JSON.parse(clean);
+        summary = Array.isArray(parsed) ? parsed : [raw];
+      } catch {
+        summary = raw.split("\n").map(s => s.replace(/^[-•*▸\d.]+\s*/, "").trim()).filter(s => s.length > 8);
+        if (!summary.length) summary = [raw];
+      }
+
+      lastSummary = summary.join("\n• ");
+      saveToHistory(title, summary, language);
+      const words = lastSummary.split(/\s+/).length;
+      document.getElementById('result-meta').textContent = title + " · ~" + words + " words";
+      document.getElementById('result-body').innerHTML = "<ul>" + summary.map(p => `<li>${p}</li>`).join("") + "</ul>";
+      incrementQuota();
+      show('result');
+    } catch(e) {
+      showError("Failed: " + e.message);
+    }
+  }
+
+  function extractArticle(encodedUrl, encodedTitle) {
+    const url = decodeURIComponent(encodedUrl);
+    showScreen('extract');
+    // Switch to URL tab and pre-fill
+    switchExtractTab('url', document.querySelector('#extract-screen .tabs .tab:nth-child(2)'));
+    document.getElementById('extract-url-input').value = url;
+  }
+
+  // Screen navigation
   function showScreen(name) {
-    ['main','extract','translate','compare','history','settings'].forEach(s => {
+    ['main','extract','translate','compare','history','settings','feeds'].forEach(s => {
       document.getElementById(s + '-screen').style.display = s === name ? 'block' : 'none';
     });
     if (name === 'history') renderHistory();
+    if (name === 'feeds') { renderFeedsList(); showFeedsList(); }
     if (name === 'settings') {
       const key = getUserApiKey();
       if (key) document.getElementById('api-key-input').value = key;
@@ -618,6 +959,7 @@
     }
   }
 
+  // History
   function getHistory() { try { return JSON.parse(localStorage.getItem('accipiter_history') || '[]'); } catch { return []; } }
   function saveToHistory(source, summary, language) {
     const h = getHistory();
@@ -625,13 +967,8 @@
     if (h.length > 50) h.pop();
     localStorage.setItem('accipiter_history', JSON.stringify(h));
   }
-  function deleteHistoryItem(id) {
-    localStorage.setItem('accipiter_history', JSON.stringify(getHistory().filter(h => h.id !== id)));
-    renderHistory();
-  }
-  function clearHistory() {
-    if (confirm('Clear all history?')) { localStorage.removeItem('accipiter_history'); renderHistory(); }
-  }
+  function deleteHistoryItem(id) { localStorage.setItem('accipiter_history', JSON.stringify(getHistory().filter(h => h.id !== id))); renderHistory(); }
+  function clearHistory() { if (confirm('Clear all history?')) { localStorage.removeItem('accipiter_history'); renderHistory(); } }
   function renderHistory() {
     const history = getHistory();
     const el = document.getElementById('history-list');
@@ -667,8 +1004,7 @@
   }
   function switchExtractTab(tab, btn) {
     extractTab = tab;
-    btn.closest('.tabs').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    btn.classList.add('active');
+    if (btn) { btn.closest('.tabs').querySelectorAll('.tab').forEach(t => t.classList.remove('active')); btn.classList.add('active'); }
     ['file','url','text'].forEach(t => { const el = document.getElementById('extract-panel-' + t); if (el) el.classList.toggle('active', t === tab); });
   }
   function switchTranslateTab(tab, btn) {
@@ -683,11 +1019,7 @@
   function clearFile() { selectedFile = null; document.getElementById('file-chip').style.display = 'none'; document.getElementById('file-input').value = ''; }
   function clearExtractFile() { extractFile = null; document.getElementById('extract-file-chip').style.display = 'none'; document.getElementById('extract-file-input').value = ''; }
   function clearTranslateFile() { translateFile = null; document.getElementById('translate-file-chip').style.display = 'none'; document.getElementById('translate-file-input').value = ''; }
-  function getFileIcon(name) {
-    if (name.endsWith('.pdf')) return '📕';
-    if (name.endsWith('.doc') || name.endsWith('.docx')) return '📘';
-    return '📄';
-  }
+  function getFileIcon(name) { if (name.endsWith('.pdf')) return '📕'; if (name.endsWith('.doc') || name.endsWith('.docx')) return '📘'; return '📄'; }
   function show(section) {
     document.getElementById('input-section').style.display   = section === 'input'   ? 'block' : 'none';
     document.getElementById('loading-section').style.display = section === 'loading' ? 'block' : 'none';
