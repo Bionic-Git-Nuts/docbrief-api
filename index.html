@@ -24,6 +24,7 @@
     --green: #4caf7d; --green-bg: rgba(76,175,125,0.10); --green-border: rgba(76,175,125,0.25);
     --purple: #a78bfa; --purple-bg: rgba(167,139,250,0.10); --purple-border: rgba(167,139,250,0.25);
     --yellow: #fbbf24; --yellow-bg: rgba(251,191,36,0.10); --yellow-border: rgba(251,191,36,0.25);
+    --red: #ff5f5f; --red-bg: rgba(255,95,95,0.10); --red-border: rgba(255,95,95,0.25);
   }
   html, body { min-height: 100vh; background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; -webkit-font-smoothing: antialiased; }
   body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px); background-size: 48px 48px; pointer-events: none; z-index: 0; }
@@ -43,8 +44,8 @@
   .top-btns { display: flex; gap: 6px; }
   .top-btn { border-radius: 8px; padding: 7px 11px; font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.15s; letter-spacing: 0.04em; border: 1px solid; background: rgba(255,255,255,0.04); border-color: var(--border); color: var(--text-dim); }
   .top-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
-  .action-row { display: flex; gap: 8px; margin-bottom: 16px; }
-  .action-btn { flex: 1; padding: 6px 6px; border-radius: 8px; font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.03em; cursor: pointer; transition: all 0.15s; border: 1px solid; text-align: center; }
+  .action-row { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .action-btn { flex: 1; padding: 6px 6px; border-radius: 8px; font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.03em; cursor: pointer; transition: all 0.15s; border: 1px solid; text-align: center; min-width: 60px; }
   .action-btn:hover { opacity: 0.8; }
   .action-btn-translate { background: var(--purple-bg); border-color: var(--purple-border); color: var(--purple); }
   .action-btn-extract { background: var(--green-bg); border-color: var(--green-border); color: var(--green); }
@@ -176,6 +177,7 @@
   .article-list { display: flex; flex-direction: column; gap: 12px; }
   .article-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; transition: border-color 0.15s; }
   .article-item:hover { border-color: rgba(251,191,36,0.2); }
+  .article-item.keyword-match { border-color: rgba(255,95,95,0.4); background: rgba(255,95,95,0.04); }
   .article-title { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.4; margin-bottom: 6px; }
   .article-desc { font-size: 13px; color: var(--text-dim); line-height: 1.5; margin-bottom: 10px; }
   .article-date { font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; margin-bottom: 10px; }
@@ -187,11 +189,27 @@
   .btn-open { background: rgba(255,255,255,0.04); border-color: var(--border); color: var(--text-dim); text-decoration: none; display: inline-flex; align-items: center; }
   .feed-back-btn { display: flex; align-items: center; gap: 8px; background: none; border: none; color: var(--text-dim); font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; padding: 0; margin-bottom: 16px; }
   .feed-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-  .feed-header-title { font-family: 'Instrument Serif', serif; font-size: 20px; color: #f0ede6; }
+  .feed-header-title { font-family: 'Instrument Serif', serif; font-size: 20px; color: #f0ede6; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .feed-loading { text-align: center; padding: 40px; color: var(--text-muted); font-size: 14px; }
   .add-feed-row { display: flex; gap: 8px; }
   .add-feed-row input { flex: 1; }
   .add-feed-btn { padding: 13px 16px; border: none; border-radius: 10px; background: linear-gradient(135deg, #fbbf24, #d97706); color: #fff; font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  .keyword-badge { display: inline-block; background: var(--red-bg); border: 1px solid var(--red-border); color: var(--red); font-size: 10px; font-family: 'JetBrains Mono', monospace; padding: 2px 7px; border-radius: 4px; margin-left: 6px; vertical-align: middle; }
+  .alerts-banner { background: rgba(255,95,95,0.07); border: 1px solid rgba(255,95,95,0.25); border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; }
+  .alerts-banner-title { font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--red); margin-bottom: 8px; }
+  .alerts-banner-item { font-size: 13px; color: var(--text-dim); padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.04); line-height: 1.4; cursor: pointer; }
+  .alerts-banner-item:last-child { border-bottom: none; }
+  .alerts-banner-item:hover { color: var(--text); }
+
+  /* Keywords */
+  .keyword-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .keyword-tag { display: flex; align-items: center; gap: 6px; background: var(--red-bg); border: 1px solid var(--red-border); border-radius: 20px; padding: 5px 12px; font-size: 12px; font-family: 'JetBrains Mono', monospace; color: var(--red); }
+  .keyword-tag-remove { background: none; border: none; color: var(--red); cursor: pointer; font-size: 14px; padding: 0; line-height: 1; opacity: 0.7; }
+  .keyword-tag-remove:hover { opacity: 1; }
+  .keyword-empty { font-size: 13px; color: var(--text-muted); font-style: italic; margin-top: 8px; }
+  .add-keyword-row { display: flex; gap: 8px; }
+  .add-keyword-row input { flex: 1; }
+  .add-keyword-btn { padding: 13px 16px; border: none; border-radius: 10px; background: linear-gradient(135deg, #ff5f5f, #cc3333); color: #fff; font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -329,11 +347,15 @@
         <div class="logo-icon"><img src="/Owl-logo.png" alt="Accipiter"></div>
         <span class="logo-text">Accipiter</span>
       </div>
+      <div class="top-btns">
+        <button class="top-btn" onclick="showScreen('keywords')" style="color:var(--red);border-color:var(--red-border);background:var(--red-bg)">🔔 Alerts</button>
+      </div>
     </div>
     <button class="back-btn" onclick="showScreen('main')">← Back</button>
 
-    <!-- Feed list view -->
     <div id="feeds-list-view">
+      <div id="alerts-banner-container"></div>
+
       <div class="card">
         <div class="card-label">Add RSS Feed</div>
         <div class="add-feed-row">
@@ -345,75 +367,51 @@
       <div class="card">
         <div class="card-label">My Feeds</div>
         <div id="my-feeds-list" class="feed-list">
-          <div class="feed-empty">No feeds added yet. Add one above or try a suggestion below.</div>
+          <div class="feed-empty">No feeds added yet.</div>
         </div>
       </div>
 
       <div class="card">
         <div class="card-label">Suggested Feeds</div>
         <div class="suggested-feeds">
-          <div class="suggested-feed" onclick="addSuggestedFeed('https://rss.arxiv.org/rss/cs.AI', 'arXiv — AI Research', '📄')">
+          <div class="suggested-feed" onclick="addSuggestedFeed('https://rss.arxiv.org/rss/cs.AI','arXiv — AI Research','📄')">
             <span class="suggested-feed-icon">📄</span>
-            <div class="suggested-feed-info">
-              <div class="suggested-feed-name">arXiv — AI Research</div>
-              <div class="suggested-feed-desc">Latest AI & machine learning papers</div>
-            </div>
+            <div class="suggested-feed-info"><div class="suggested-feed-name">arXiv — AI Research</div><div class="suggested-feed-desc">Latest AI & machine learning papers</div></div>
             <span class="suggested-feed-add">+</span>
           </div>
-          <div class="suggested-feed" onclick="addSuggestedFeed('https://feeds.reuters.com/reuters/topNews', 'Reuters — Top News', '📰')">
+          <div class="suggested-feed" onclick="addSuggestedFeed('https://feeds.reuters.com/reuters/topNews','Reuters — Top News','📰')">
             <span class="suggested-feed-icon">📰</span>
-            <div class="suggested-feed-info">
-              <div class="suggested-feed-name">Reuters — Top News</div>
-              <div class="suggested-feed-desc">Breaking international news</div>
-            </div>
+            <div class="suggested-feed-info"><div class="suggested-feed-name">Reuters — Top News</div><div class="suggested-feed-desc">Breaking international news</div></div>
             <span class="suggested-feed-add">+</span>
           </div>
-          <div class="suggested-feed" onclick="addSuggestedFeed('https://feeds.bbci.co.uk/news/rss.xml', 'BBC News', '🌍')">
+          <div class="suggested-feed" onclick="addSuggestedFeed('https://feeds.bbci.co.uk/news/rss.xml','BBC News','🌍')">
             <span class="suggested-feed-icon">🌍</span>
-            <div class="suggested-feed-info">
-              <div class="suggested-feed-name">BBC News</div>
-              <div class="suggested-feed-desc">World news from the BBC</div>
-            </div>
+            <div class="suggested-feed-info"><div class="suggested-feed-name">BBC News</div><div class="suggested-feed-desc">World news from the BBC</div></div>
             <span class="suggested-feed-add">+</span>
           </div>
-          <div class="suggested-feed" onclick="addSuggestedFeed('https://hnrss.org/frontpage', 'Hacker News', '💻')">
+          <div class="suggested-feed" onclick="addSuggestedFeed('https://hnrss.org/frontpage','Hacker News','💻')">
             <span class="suggested-feed-icon">💻</span>
-            <div class="suggested-feed-info">
-              <div class="suggested-feed-name">Hacker News</div>
-              <div class="suggested-feed-desc">Top tech stories and discussions</div>
-            </div>
+            <div class="suggested-feed-info"><div class="suggested-feed-name">Hacker News</div><div class="suggested-feed-desc">Top tech stories and discussions</div></div>
             <span class="suggested-feed-add">+</span>
           </div>
-          <div class="suggested-feed" onclick="addSuggestedFeed('https://pubmed.ncbi.nlm.nih.gov/rss/search/1YnKQ8EKXhf-XbkDFz0ftnPUBVvFp5MpZCTjdRZWMWYDX58WuK/?limit=15&utm_campaign=pubmed-2&fc=20231128154918', 'PubMed — Medical Research', '🔬')">
+          <div class="suggested-feed" onclick="addSuggestedFeed('https://hnrss.org/frontpage','PubMed — Medical Research','🔬')">
             <span class="suggested-feed-icon">🔬</span>
-            <div class="suggested-feed-info">
-              <div class="suggested-feed-name">PubMed — Medical Research</div>
-              <div class="suggested-feed-desc">Latest biomedical literature</div>
-            </div>
+            <div class="suggested-feed-info"><div class="suggested-feed-name">PubMed — Medical Research</div><div class="suggested-feed-desc">Latest biomedical literature</div></div>
             <span class="suggested-feed-add">+</span>
           </div>
-          <div class="suggested-feed" onclick="addSuggestedFeed('https://www.nature.com/nature.rss', 'Nature Journal', '🧬')">
+          <div class="suggested-feed" onclick="addSuggestedFeed('https://www.nature.com/nature.rss','Nature Journal','🧬')">
             <span class="suggested-feed-icon">🧬</span>
-            <div class="suggested-feed-info">
-              <div class="suggested-feed-name">Nature Journal</div>
-              <div class="suggested-feed-desc">Cutting-edge scientific research</div>
-            </div>
+            <div class="suggested-feed-info"><div class="suggested-feed-name">Nature Journal</div><div class="suggested-feed-desc">Cutting-edge scientific research</div></div>
             <span class="suggested-feed-add">+</span>
           </div>
-          <div class="suggested-feed" onclick="addSuggestedFeed('https://techcrunch.com/feed/', 'TechCrunch', '🚀')">
+          <div class="suggested-feed" onclick="addSuggestedFeed('https://techcrunch.com/feed/','TechCrunch','🚀')">
             <span class="suggested-feed-icon">🚀</span>
-            <div class="suggested-feed-info">
-              <div class="suggested-feed-name">TechCrunch</div>
-              <div class="suggested-feed-desc">Startup and technology news</div>
-            </div>
+            <div class="suggested-feed-info"><div class="suggested-feed-name">TechCrunch</div><div class="suggested-feed-desc">Startup and technology news</div></div>
             <span class="suggested-feed-add">+</span>
           </div>
-          <div class="suggested-feed" onclick="addSuggestedFeed('https://www.theguardian.com/world/rss', 'The Guardian — World', '🗞️')">
+          <div class="suggested-feed" onclick="addSuggestedFeed('https://www.theguardian.com/world/rss','The Guardian — World','🗞️')">
             <span class="suggested-feed-icon">🗞️</span>
-            <div class="suggested-feed-info">
-              <div class="suggested-feed-name">The Guardian — World</div>
-              <div class="suggested-feed-desc">Global news and analysis</div>
-            </div>
+            <div class="suggested-feed-info"><div class="suggested-feed-name">The Guardian — World</div><div class="suggested-feed-desc">Global news and analysis</div></div>
             <span class="suggested-feed-add">+</span>
           </div>
         </div>
@@ -434,11 +432,41 @@
       <button class="feed-back-btn" onclick="showFeedsList()">← All Feeds</button>
       <div class="feed-header">
         <div class="feed-header-title" id="feed-view-title">Feed</div>
-        <button class="top-btn" onclick="refreshCurrentFeed()">↻ Refresh</button>
+        <button class="top-btn" onclick="refreshCurrentFeed()">↻</button>
       </div>
       <div id="feed-articles-container">
         <div class="feed-loading">Loading articles…</div>
       </div>
+    </div>
+  </div>
+
+  <!-- Keywords / Alerts screen -->
+  <div id="keywords-screen" style="display:none">
+    <div class="logo-row">
+      <div class="logo-left">
+        <div class="logo-icon"><img src="/Owl-logo.png" alt="Accipiter"></div>
+        <span class="logo-text">Accipiter</span>
+      </div>
+    </div>
+    <button class="back-btn" onclick="showScreen('feeds')">← Back to Feeds</button>
+    <div class="card">
+      <div class="card-label">🔔 Keyword Alerts</div>
+      <p style="font-size:13px;color:var(--text-dim);line-height:1.6;margin-bottom:16px;">
+        Add keywords or topics below. When you open a feed, any article containing these words will be highlighted with a 🔔 badge and shown in an alerts banner at the top.
+      </p>
+      <div class="add-keyword-row">
+        <input class="key-input" id="keyword-input" placeholder="e.g. GPT, interest rates, climate…" onkeydown="if(event.key==='Enter')addKeyword()">
+        <button class="add-keyword-btn" onclick="addKeyword()">+ Add</button>
+      </div>
+      <div id="keyword-tags" class="keyword-tags"></div>
+    </div>
+    <div class="card" style="background:rgba(255,95,95,0.04);border-color:rgba(255,95,95,0.15);">
+      <div class="card-label" style="color:var(--red);">How it works</div>
+      <p style="font-size:13px;color:var(--text-dim);line-height:1.7;">
+        🔔 Matching articles get a red badge and appear in an <strong style="color:var(--text)">Alerts</strong> banner at the top of each feed.<br><br>
+        📡 The more feeds you add, the more sources are scanned for your keywords.<br><br>
+        ✓ Keywords are case-insensitive and match partial words too.
+      </p>
     </div>
   </div>
 
@@ -460,7 +488,7 @@
       </div>
       <p class="settings-note">
         Get a free API key at <a href="https://console.mistral.ai" target="_blank">console.mistral.ai</a> → API Keys → Create API Key.<br><br>
-        Your key is saved only on this device and never shared. Each person uses their own key and gets their own free quota.
+        Your key is saved only on this device and never shared.
       </p>
     </div>
     <button class="submit-btn btn-orange" onclick="saveApiKey()">Save API Key</button>
@@ -691,26 +719,16 @@
 
 </div>
 <script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js');
-  }
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
 
   const BACKEND = "https://docbrief-api-production.up.railway.app";
-  let currentTab = "text";
-  let extractTab = "file";
-  let translateTab = "text";
+  let currentTab = "text", extractTab = "file", translateTab = "text";
   let opts = { format: "bullets", length: "medium" };
-  let extractFormat = "docx";
-  let translateFormat = "docx";
-  let selectedFile = null;
-  let extractFile = null;
-  let translateFile = null;
-  let compareFile1 = null;
-  let compareFile2 = null;
-  let lastSummary = "";
-  let lastCompareText = "";
-  let currentFeedUrl = "";
-  let currentFeedTitle = "";
+  let extractFormat = "docx", translateFormat = "docx";
+  let selectedFile = null, extractFile = null, translateFile = null;
+  let compareFile1 = null, compareFile2 = null;
+  let lastSummary = "", lastCompareText = "";
+  let currentFeedUrl = "", currentFeedTitle = "";
 
   // API Key
   function getUserApiKey() { return localStorage.getItem('accipiter_api_key') || ''; }
@@ -718,38 +736,23 @@
     const key = document.getElementById('api-key-input').value.trim();
     if (!key) { alert('Please enter an API key.'); return; }
     localStorage.setItem('accipiter_api_key', key);
-    updateKeyStatus();
-    alert('API key saved!');
+    updateKeyStatus(); alert('API key saved!');
   }
   function clearApiKey() {
-    if (confirm('Remove your saved API key?')) {
-      localStorage.removeItem('accipiter_api_key');
-      document.getElementById('api-key-input').value = '';
-      updateKeyStatus();
-    }
+    if (confirm('Remove your saved API key?')) { localStorage.removeItem('accipiter_api_key'); document.getElementById('api-key-input').value = ''; updateKeyStatus(); }
   }
   function updateKeyStatus() {
     const key = getUserApiKey();
-    const dot = document.getElementById('key-dot');
-    const text = document.getElementById('key-status-text');
-    if (key) { dot.className = 'key-status-dot active'; text.textContent = 'Key saved ✓ — ' + key.slice(0, 8) + '…'; }
-    else { dot.className = 'key-status-dot inactive'; text.textContent = 'No key saved'; }
+    document.getElementById('key-dot').className = key ? 'key-status-dot active' : 'key-status-dot inactive';
+    document.getElementById('key-status-text').textContent = key ? 'Key saved ✓ — ' + key.slice(0,8) + '…' : 'No key saved';
   }
 
   // Quota
   function getQuota() {
-    try {
-      const q = JSON.parse(localStorage.getItem('accipiter_quota') || '{}');
-      const today = new Date().toDateString();
-      if (q.date !== today) return { date: today, count: 0 };
-      return q;
-    } catch { return { date: new Date().toDateString(), count: 0 }; }
+    try { const q = JSON.parse(localStorage.getItem('accipiter_quota') || '{}'); const today = new Date().toDateString(); if (q.date !== today) return { date: today, count: 0 }; return q; }
+    catch { return { date: new Date().toDateString(), count: 0 }; }
   }
-  function incrementQuota() {
-    const q = getQuota(); q.count += 1;
-    localStorage.setItem('accipiter_quota', JSON.stringify(q));
-    updateQuotaBar();
-  }
+  function incrementQuota() { const q = getQuota(); q.count += 1; localStorage.setItem('accipiter_quota', JSON.stringify(q)); updateQuotaBar(); }
   function updateQuotaBar() {
     const q = getQuota();
     const pct = Math.min((q.count / 1500) * 100, 100);
@@ -757,15 +760,37 @@
     document.getElementById('quota-label').textContent = `Daily: ${q.count} / 1500`;
     document.getElementById('quota-fill').style.width = pct + '%';
     document.getElementById('quota-fill').style.background = color;
-    const now = new Date();
-    const midnight = new Date(now); midnight.setHours(24,0,0,0);
-    const hrs = Math.floor((midnight - now) / 3600000);
-    const mins = Math.floor(((midnight - now) % 3600000) / 60000);
+    const now = new Date(), midnight = new Date(now); midnight.setHours(24,0,0,0);
+    const hrs = Math.floor((midnight - now) / 3600000), mins = Math.floor(((midnight - now) % 3600000) / 60000);
     document.getElementById('quota-reset').textContent = `Resets in ${hrs}h ${mins}m`;
   }
-  updateQuotaBar();
-  updateKeyStatus();
-  setInterval(updateQuotaBar, 60000);
+  updateQuotaBar(); updateKeyStatus(); setInterval(updateQuotaBar, 60000);
+
+  // Keywords
+  function getKeywords() { try { return JSON.parse(localStorage.getItem('accipiter_keywords') || '[]'); } catch { return []; } }
+  function saveKeywords(kw) { localStorage.setItem('accipiter_keywords', JSON.stringify(kw)); }
+  function addKeyword() {
+    const input = document.getElementById('keyword-input');
+    const val = input.value.trim();
+    if (!val) return;
+    const kw = getKeywords();
+    if (kw.find(k => k.toLowerCase() === val.toLowerCase())) { alert('Already added!'); return; }
+    kw.push(val); saveKeywords(kw);
+    input.value = ''; renderKeywords();
+  }
+  function removeKeyword(index) { const kw = getKeywords(); kw.splice(index, 1); saveKeywords(kw); renderKeywords(); }
+  function renderKeywords() {
+    const kw = getKeywords();
+    const el = document.getElementById('keyword-tags');
+    if (!kw.length) { el.innerHTML = '<div class="keyword-empty">No keywords yet. Add some above to start monitoring feeds.</div>'; return; }
+    el.innerHTML = kw.map((k, i) => `<div class="keyword-tag">${k}<button class="keyword-tag-remove" onclick="removeKeyword(${i})">✕</button></div>`).join('');
+  }
+  function checkKeywords(title, description) {
+    const kw = getKeywords();
+    if (!kw.length) return [];
+    const text = (title + ' ' + description).toLowerCase();
+    return kw.filter(k => text.includes(k.toLowerCase()));
+  }
 
   // Feeds
   function getFeeds() { try { return JSON.parse(localStorage.getItem('accipiter_feeds') || '[]'); } catch { return []; } }
@@ -774,20 +799,16 @@
   function renderFeedsList() {
     const feeds = getFeeds();
     const el = document.getElementById('my-feeds-list');
-    if (!feeds.length) {
-      el.innerHTML = '<div class="feed-empty">No feeds added yet. Add one above or try a suggestion below.</div>';
-      return;
-    }
+    if (!feeds.length) { el.innerHTML = '<div class="feed-empty">No feeds added yet. Add one above or try a suggestion below.</div>'; return; }
     el.innerHTML = feeds.map((f, i) => `
-      <div class="feed-item" onclick="openFeed('${f.url}', '${f.title}', '${f.icon}')">
+      <div class="feed-item" onclick="openFeed('${f.url}','${encodeURIComponent(f.title)}','${f.icon}')">
         <span class="feed-item-icon">${f.icon}</span>
         <div class="feed-item-info">
           <div class="feed-item-title">${f.title}</div>
           <div class="feed-item-url">${f.url}</div>
         </div>
         <button class="feed-item-delete" onclick="event.stopPropagation();deleteFeed(${i})">✕</button>
-      </div>
-    `).join('');
+      </div>`).join('');
   }
 
   function addFeed() {
@@ -795,168 +816,134 @@
     if (!url) { alert('Please enter a feed URL.'); return; }
     const feeds = getFeeds();
     if (feeds.find(f => f.url === url)) { alert('Feed already added.'); return; }
-    feeds.push({ url, title: url, icon: '📡' });
-    saveFeeds(feeds);
+    feeds.push({ url, title: url, icon: '📡' }); saveFeeds(feeds);
     document.getElementById('feed-url-input').value = '';
     renderFeedsList();
-    // Auto-open to load title
     openFeed(url, url, '📡');
   }
 
   function addSuggestedFeed(url, title, icon) {
     const feeds = getFeeds();
-    if (feeds.find(f => f.url === url)) { alert('Feed already added!'); return; }
-    feeds.push({ url, title, icon });
-    saveFeeds(feeds);
-    renderFeedsList();
-    openFeed(url, title, icon);
+    if (feeds.find(f => f.url === url)) { openFeed(url, title, icon); return; }
+    feeds.push({ url, title, icon }); saveFeeds(feeds);
+    renderFeedsList(); openFeed(url, title, icon);
   }
 
-  function deleteFeed(index) {
-    const feeds = getFeeds();
-    feeds.splice(index, 1);
-    saveFeeds(feeds);
-    renderFeedsList();
-  }
+  function deleteFeed(index) { const feeds = getFeeds(); feeds.splice(index, 1); saveFeeds(feeds); renderFeedsList(); }
 
-  async function openFeed(url, title, icon) {
-    currentFeedUrl = url;
-    currentFeedTitle = title;
+  async function openFeed(url, encodedTitle, icon) {
+    const title = decodeURIComponent(encodedTitle);
+    currentFeedUrl = url; currentFeedTitle = title;
     document.getElementById('feeds-list-view').style.display = 'none';
     document.getElementById('feeds-articles-view').style.display = 'block';
     document.getElementById('feed-view-title').textContent = title;
     document.getElementById('feed-articles-container').innerHTML = '<div class="feed-loading">⏳ Loading articles…</div>';
 
     try {
-      const resp = await fetch(`${BACKEND}/fetch-rss`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url })
-      });
+      const resp = await fetch(`${BACKEND}/fetch-rss`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) });
       const data = await resp.json();
       if (!resp.ok || data.error) throw new Error(data.error || 'Failed to load feed');
 
       // Update feed title
       const feeds = getFeeds();
       const feed = feeds.find(f => f.url === url);
-      if (feed && data.title && data.title !== url) {
-        feed.title = data.title;
-        feed.icon = icon;
-        saveFeeds(feeds);
-        renderFeedsList();
-        document.getElementById('feed-view-title').textContent = data.title;
-        currentFeedTitle = data.title;
+      if (feed && data.title && data.title !== url) { feed.title = data.title; saveFeeds(feeds); renderFeedsList(); document.getElementById('feed-view-title').textContent = data.title; currentFeedTitle = data.title; }
+
+      if (!data.items || !data.items.length) { document.getElementById('feed-articles-container').innerHTML = '<div class="feed-loading">No articles found.</div>'; return; }
+
+      // Check keywords and build alerts banner
+      const keywords = getKeywords();
+      const matches = [];
+      data.items.forEach((item, i) => {
+        const matched = checkKeywords(item.title, item.description);
+        if (matched.length) matches.push({ ...item, matched, index: i });
+      });
+
+      let alertsHtml = '';
+      if (matches.length && keywords.length) {
+        alertsHtml = `<div class="alerts-banner">
+          <div class="alerts-banner-title">🔔 ${matches.length} keyword match${matches.length > 1 ? 'es' : ''} found</div>
+          ${matches.map(m => `<div class="alerts-banner-item" onclick="document.getElementById('article-${m.index}').scrollIntoView({behavior:'smooth'})">
+            ${m.matched.map(k => `<span class="keyword-badge">${k}</span>`).join('')} ${m.title}
+          </div>`).join('')}
+        </div>`;
       }
 
-      if (!data.items || !data.items.length) {
-        document.getElementById('feed-articles-container').innerHTML = '<div class="feed-loading">No articles found.</div>';
-        return;
-      }
-
-      document.getElementById('feed-articles-container').innerHTML = `
+      document.getElementById('feed-articles-container').innerHTML = alertsHtml + `
         <div class="article-list">
-          ${data.items.map((item, i) => `
-            <div class="article-item">
-              <div class="article-title">${item.title}</div>
+          ${data.items.map((item, i) => {
+            const matched = checkKeywords(item.title, item.description);
+            const isMatch = matched.length > 0;
+            return `<div class="article-item ${isMatch ? 'keyword-match' : ''}" id="article-${i}">
+              <div class="article-title">
+                ${isMatch ? '🔔 ' : ''}${item.title}
+                ${matched.map(k => `<span class="keyword-badge">${k}</span>`).join('')}
+              </div>
               ${item.pubDate ? `<div class="article-date">${item.pubDate}</div>` : ''}
-              ${item.description ? `<div class="article-desc">${item.description.slice(0, 200)}${item.description.length > 200 ? '…' : ''}</div>` : ''}
+              ${item.description ? `<div class="article-desc">${item.description.slice(0,200)}${item.description.length > 200 ? '…' : ''}</div>` : ''}
               <div class="article-actions">
-                <button class="article-action-btn btn-summarize" onclick="summarizeArticle('${encodeURIComponent(item.link)}', '${encodeURIComponent(item.title)}')">▸ Summarize</button>
-                <button class="article-action-btn btn-extract-art" onclick="extractArticle('${encodeURIComponent(item.link)}', '${encodeURIComponent(item.title)}')">⬡ Extract</button>
+                <button class="article-action-btn btn-summarize" onclick="summarizeArticle('${encodeURIComponent(item.link)}','${encodeURIComponent(item.title)}')">▸ Summarize</button>
+                <button class="article-action-btn btn-extract-art" onclick="extractArticle('${encodeURIComponent(item.link)}','${encodeURIComponent(item.title)}')">⬡ Extract</button>
                 ${item.link ? `<a class="article-action-btn btn-open" href="${item.link}" target="_blank">↗ Open</a>` : ''}
               </div>
-            </div>
-          `).join('')}
+            </div>`;
+          }).join('')}
         </div>`;
     } catch(e) {
       document.getElementById('feed-articles-container').innerHTML = `<div class="feed-loading" style="color:rgba(255,100,100,0.8)">⚠ ${e.message}</div>`;
     }
   }
 
-  function refreshCurrentFeed() {
-    if (currentFeedUrl) openFeed(currentFeedUrl, currentFeedTitle, '📡');
-  }
-
-  function showFeedsList() {
-    document.getElementById('feeds-list-view').style.display = 'block';
-    document.getElementById('feeds-articles-view').style.display = 'none';
-  }
+  function refreshCurrentFeed() { if (currentFeedUrl) openFeed(currentFeedUrl, encodeURIComponent(currentFeedTitle), '📡'); }
+  function showFeedsList() { document.getElementById('feeds-list-view').style.display = 'block'; document.getElementById('feeds-articles-view').style.display = 'none'; }
 
   async function summarizeArticle(encodedUrl, encodedTitle) {
-    const url = decodeURIComponent(encodedUrl);
-    const title = decodeURIComponent(encodedTitle);
-    showScreen('main');
-    show('loading');
+    const url = decodeURIComponent(encodedUrl), title = decodeURIComponent(encodedTitle);
+    showScreen('main'); show('loading');
     document.getElementById('loading-title').textContent = 'Fetching article…';
     document.getElementById('loading-sub').textContent = title;
-
     try {
-      const resp = await fetch(`${BACKEND}/fetch-article`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url })
-      });
+      const resp = await fetch(`${BACKEND}/fetch-article`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) });
       const data = await resp.json();
       if (!resp.ok || data.error) throw new Error(data.error || 'Failed to fetch article');
-
       const language = document.getElementById('language-select').value;
       const langInstr = language === 'auto' ? 'Detect the language and summarize in that language.' : language !== 'English' ? `Write the summary in ${language}.` : '';
       const userContent = `Summarize this article. Length: moderate: 1 paragraph or 6-8 bullet points. Return ONLY a JSON array of bullet strings like ["Point one.", "Point two."]. No other text. ${langInstr}\n\nDOCUMENT:\n${data.text}`;
-
       document.getElementById('loading-title').textContent = 'Summarizing…';
       document.getElementById('loading-sub').textContent = 'Extracting key insights';
-
-      const sumResp = await fetch(`${BACKEND}/summarize`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: [{ role: 'user', content: userContent }], userApiKey: getUserApiKey() })
-      });
+      const sumResp = await fetch(`${BACKEND}/summarize`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'user', content: userContent }], userApiKey: getUserApiKey() }) });
       const sumData = await sumResp.json();
       if (!sumResp.ok || sumData.error) throw new Error(sumData.error || 'Summarize failed');
-
       const raw = sumData.choices?.[0]?.message?.content?.trim() || "";
       let summary;
-      try {
-        const clean = raw.replace(/^```[\w]*\n?/, "").replace(/\n?```$/, "").trim();
-        const parsed = JSON.parse(clean);
-        summary = Array.isArray(parsed) ? parsed : [raw];
-      } catch {
-        summary = raw.split("\n").map(s => s.replace(/^[-•*▸\d.]+\s*/, "").trim()).filter(s => s.length > 8);
-        if (!summary.length) summary = [raw];
-      }
-
+      try { const clean = raw.replace(/^```[\w]*\n?/, "").replace(/\n?```$/, "").trim(); const parsed = JSON.parse(clean); summary = Array.isArray(parsed) ? parsed : [raw]; }
+      catch { summary = raw.split("\n").map(s => s.replace(/^[-•*▸\d.]+\s*/, "").trim()).filter(s => s.length > 8); if (!summary.length) summary = [raw]; }
       lastSummary = summary.join("\n• ");
       saveToHistory(title, summary, language);
-      const words = lastSummary.split(/\s+/).length;
-      document.getElementById('result-meta').textContent = title + " · ~" + words + " words";
+      document.getElementById('result-meta').textContent = title + " · ~" + lastSummary.split(/\s+/).length + " words";
       document.getElementById('result-body').innerHTML = "<ul>" + summary.map(p => `<li>${p}</li>`).join("") + "</ul>";
-      incrementQuota();
-      show('result');
-    } catch(e) {
-      showError("Failed: " + e.message);
-    }
+      incrementQuota(); show('result');
+    } catch(e) { showError("Failed: " + e.message); }
   }
 
-  function extractArticle(encodedUrl, encodedTitle) {
+  function extractArticle(encodedUrl) {
     const url = decodeURIComponent(encodedUrl);
     showScreen('extract');
-    // Switch to URL tab and pre-fill
-    switchExtractTab('url', document.querySelector('#extract-screen .tabs .tab:nth-child(2)'));
+    extractTab = 'url';
+    ['file','url','text'].forEach(t => { const el = document.getElementById('extract-panel-' + t); if (el) el.classList.toggle('active', t === 'url'); });
+    document.querySelectorAll('#extract-screen .tabs .tab').forEach((btn, i) => btn.classList.toggle('active', i === 1));
     document.getElementById('extract-url-input').value = url;
   }
 
   // Screen navigation
   function showScreen(name) {
-    ['main','extract','translate','compare','history','settings','feeds'].forEach(s => {
-      document.getElementById(s + '-screen').style.display = s === name ? 'block' : 'none';
+    ['main','extract','translate','compare','history','settings','feeds','keywords'].forEach(s => {
+      const el = document.getElementById(s + '-screen'); if (el) el.style.display = s === name ? 'block' : 'none';
     });
     if (name === 'history') renderHistory();
     if (name === 'feeds') { renderFeedsList(); showFeedsList(); }
-    if (name === 'settings') {
-      const key = getUserApiKey();
-      if (key) document.getElementById('api-key-input').value = key;
-      updateKeyStatus();
-    }
+    if (name === 'keywords') renderKeywords();
+    if (name === 'settings') { const key = getUserApiKey(); if (key) document.getElementById('api-key-input').value = key; updateKeyStatus(); }
   }
 
   // History
@@ -970,8 +957,7 @@
   function deleteHistoryItem(id) { localStorage.setItem('accipiter_history', JSON.stringify(getHistory().filter(h => h.id !== id))); renderHistory(); }
   function clearHistory() { if (confirm('Clear all history?')) { localStorage.removeItem('accipiter_history'); renderHistory(); } }
   function renderHistory() {
-    const history = getHistory();
-    const el = document.getElementById('history-list');
+    const history = getHistory(), el = document.getElementById('history-list');
     if (!history.length) { el.innerHTML = '<div class="history-empty">No summaries yet.</div>'; return; }
     el.innerHTML = history.map(h => {
       const preview = Array.isArray(h.summary) ? h.summary[0] : h.summary.slice(0, 120);
@@ -986,33 +972,16 @@
     }).join('') + `<button class="history-clear-btn" onclick="clearHistory()">Clear all history</button>`;
   }
   function openHistoryItem(id) {
-    const item = getHistory().find(h => h.id === id);
-    if (!item) return;
+    const item = getHistory().find(h => h.id === id); if (!item) return;
     lastSummary = Array.isArray(item.summary) ? item.summary.join("\n• ") : item.summary;
     document.getElementById('result-meta').textContent = item.source + ' · ' + item.date;
-    document.getElementById('result-body').innerHTML = Array.isArray(item.summary)
-      ? "<ul>" + item.summary.map(p => `<li>${p}</li>`).join("") + "</ul>"
-      : "<p>" + item.summary + "</p>";
+    document.getElementById('result-body').innerHTML = Array.isArray(item.summary) ? "<ul>" + item.summary.map(p => `<li>${p}</li>`).join("") + "</ul>" : "<p>" + item.summary + "</p>";
     showScreen('main'); show('result');
   }
 
-  function switchTab(tab, btn) {
-    currentTab = tab;
-    btn.closest('.tabs').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    btn.classList.add('active');
-    ['text','url','file'].forEach(t => { const el = document.getElementById('panel-' + t); if (el) el.classList.toggle('active', t === tab); });
-  }
-  function switchExtractTab(tab, btn) {
-    extractTab = tab;
-    if (btn) { btn.closest('.tabs').querySelectorAll('.tab').forEach(t => t.classList.remove('active')); btn.classList.add('active'); }
-    ['file','url','text'].forEach(t => { const el = document.getElementById('extract-panel-' + t); if (el) el.classList.toggle('active', t === tab); });
-  }
-  function switchTranslateTab(tab, btn) {
-    translateTab = tab;
-    btn.closest('.tabs').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    btn.classList.add('active');
-    ['text','url','file'].forEach(t => { const el = document.getElementById('translate-panel-' + t); if (el) el.classList.toggle('active', t === tab); });
-  }
+  function switchTab(tab, btn) { currentTab = tab; btn.closest('.tabs').querySelectorAll('.tab').forEach(t => t.classList.remove('active')); btn.classList.add('active'); ['text','url','file'].forEach(t => { const el = document.getElementById('panel-' + t); if (el) el.classList.toggle('active', t === tab); }); }
+  function switchExtractTab(tab, btn) { extractTab = tab; if (btn) { btn.closest('.tabs').querySelectorAll('.tab').forEach(t => t.classList.remove('active')); btn.classList.add('active'); } ['file','url','text'].forEach(t => { const el = document.getElementById('extract-panel-' + t); if (el) el.classList.toggle('active', t === tab); }); }
+  function switchTranslateTab(tab, btn) { translateTab = tab; btn.closest('.tabs').querySelectorAll('.tab').forEach(t => t.classList.remove('active')); btn.classList.add('active'); ['text','url','file'].forEach(t => { const el = document.getElementById('translate-panel-' + t); if (el) el.classList.toggle('active', t === tab); }); }
   function setOpt(key, val, btn) { opts[key] = val; btn.closest('.opt-group').querySelectorAll('.opt-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
   function setExtractFormat(fmt, btn) { extractFormat = fmt; btn.closest('.opt-group').querySelectorAll('.opt-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
   function setTranslateFormat(fmt, btn) { translateFormat = fmt; btn.closest('.opt-group').querySelectorAll('.opt-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
@@ -1021,17 +990,15 @@
   function clearTranslateFile() { translateFile = null; document.getElementById('translate-file-chip').style.display = 'none'; document.getElementById('translate-file-input').value = ''; }
   function getFileIcon(name) { if (name.endsWith('.pdf')) return '📕'; if (name.endsWith('.doc') || name.endsWith('.docx')) return '📘'; return '📄'; }
   function show(section) {
-    document.getElementById('input-section').style.display   = section === 'input'   ? 'block' : 'none';
+    document.getElementById('input-section').style.display = section === 'input' ? 'block' : 'none';
     document.getElementById('loading-section').style.display = section === 'loading' ? 'block' : 'none';
-    document.getElementById('result-section').style.display  = section === 'result'  ? 'block' : 'none';
+    document.getElementById('result-section').style.display = section === 'result' ? 'block' : 'none';
   }
   function showError(msg) { show('input'); const el = document.getElementById('error-msg'); el.textContent = "⚠ " + msg; el.style.display = 'block'; }
   function setLoading(title, sub) { document.getElementById('loading-title').textContent = title; document.getElementById('loading-sub').textContent = sub; show('loading'); }
 
   async function readFileAsBase64(file) {
-    const buffer = await file.arrayBuffer();
-    const bytes = new Uint8Array(buffer);
-    let binary = '';
+    const buffer = await file.arrayBuffer(); const bytes = new Uint8Array(buffer); let binary = '';
     const chunkSize = 8192;
     for (let i = 0; i < bytes.length; i += chunkSize) binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
     return btoa(binary);
@@ -1058,7 +1025,6 @@
     const lengthMap = { short: "brief: 2-3 sentences or 3-4 bullet points", medium: "moderate: 1 paragraph or 6-8 bullet points", long: "detailed: 2-3 paragraphs or 10-14 bullet points" };
     const formatInstr = opts.format === "bullets" ? 'Return ONLY a JSON array of bullet strings like ["Point one.", "Point two."]. No other text.' : 'Return ONLY a plain paragraph of text. No JSON, no markdown.';
     let userContent = "", source = "";
-
     if (currentTab === "text") {
       const t = document.getElementById('text-input').value.trim();
       if (t.length < 20) { showError("Please paste more text."); return; }
@@ -1074,137 +1040,84 @@
       source = selectedFile.name;
       setLoading("Extracting document text…", "Please wait");
       let parseResp, parseData;
-      try {
-        parseResp = await fetch(`${BACKEND}/parse-file`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ data: selectedFile.base64, name: selectedFile.name, userApiKey: getUserApiKey() }) });
-        parseData = await parseResp.json();
-      } catch(e) { showError("Upload failed: " + e.message); return; }
+      try { parseResp = await fetch(`${BACKEND}/parse-file`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ data: selectedFile.base64, name: selectedFile.name, userApiKey: getUserApiKey() }) }); parseData = await parseResp.json(); }
+      catch(e) { showError("Upload failed: " + e.message); return; }
       if (!parseResp.ok || parseData.error) { showError("File error: " + (parseData?.error || "HTTP " + parseResp.status)); return; }
       if (!parseData.text || parseData.text.trim().length < 10) { showError("Could not extract text from this file."); return; }
       userContent = `Summarize this document. Length: ${lengthMap[opts.length]}. ${langInstr} ${formatInstr}\n\nDOCUMENT:\n${parseData.text}`;
     }
-
     setLoading("Reading your document…", "Extracting key insights");
     let resp, data;
-    try {
-      resp = await fetch(`${BACKEND}/summarize`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages: [{ role: "user", content: userContent }], userApiKey: getUserApiKey() }) });
-      data = await resp.json();
-    } catch(e) { showError("Network error: " + e.message); return; }
+    try { resp = await fetch(`${BACKEND}/summarize`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages: [{ role: "user", content: userContent }], userApiKey: getUserApiKey() }) }); data = await resp.json(); }
+    catch(e) { showError("Network error: " + e.message); return; }
     if (!resp.ok || data.error) { showError(data.error?.message || data.error || "HTTP " + resp.status); return; }
     if (!data.choices) { showError("Unexpected response."); return; }
-
     const raw = data.choices?.[0]?.message?.content?.trim() || "";
     if (!raw) { showError("Empty response from AI."); return; }
-
     let summary;
     if (opts.format === "bullets") {
-      try {
-        const clean = raw.replace(/^```[\w]*\n?/, "").replace(/\n?```$/, "").trim();
-        const parsed = JSON.parse(clean);
-        summary = Array.isArray(parsed) ? parsed : [raw];
-      } catch {
-        summary = raw.split("\n").map(s => s.replace(/^[-•*▸\d.]+\s*/, "").trim()).filter(s => s.length > 8);
-        if (!summary.length) summary = [raw];
-      }
+      try { const clean = raw.replace(/^```[\w]*\n?/, "").replace(/\n?```$/, "").trim(); const parsed = JSON.parse(clean); summary = Array.isArray(parsed) ? parsed : [raw]; }
+      catch { summary = raw.split("\n").map(s => s.replace(/^[-•*▸\d.]+\s*/, "").trim()).filter(s => s.length > 8); if (!summary.length) summary = [raw]; }
     } else { summary = raw; }
-
     lastSummary = Array.isArray(summary) ? summary.join("\n• ") : summary;
     saveToHistory(source, summary, language);
-    const words = lastSummary.split(/\s+/).length;
-    document.getElementById('result-meta').textContent = source + " · ~" + words + " words";
+    document.getElementById('result-meta').textContent = source + " · ~" + lastSummary.split(/\s+/).length + " words";
     document.getElementById('result-body').innerHTML = Array.isArray(summary) ? "<ul>" + summary.map(p => `<li>${p}</li>`).join("") + "</ul>" : "<p>" + summary + "</p>";
-    incrementQuota();
-    show('result');
+    incrementQuota(); show('result');
   }
 
   async function handleExtract() {
-    const errEl = document.getElementById('extract-error');
-    errEl.style.display = 'none';
+    const errEl = document.getElementById('extract-error'); errEl.style.display = 'none';
     const query = document.getElementById('extract-query').value.trim();
     if (!query) { errEl.textContent = "⚠ Please describe what to extract."; errEl.style.display = 'block'; return; }
     let body = { query, format: extractFormat, userApiKey: getUserApiKey() };
-    if (extractTab === 'file') {
-      if (!extractFile) { errEl.textContent = "⚠ Please select a file."; errEl.style.display = 'block'; return; }
-      body.data = extractFile.base64; body.name = extractFile.name;
-    } else if (extractTab === 'url') {
-      const u = document.getElementById('extract-url-input').value.trim();
-      if (!u) { errEl.textContent = "⚠ Please enter a URL."; errEl.style.display = 'block'; return; }
-      body.url = u;
-    } else {
-      const t = document.getElementById('extract-text-input').value.trim();
-      if (t.length < 10) { errEl.textContent = "⚠ Please paste some text."; errEl.style.display = 'block'; return; }
-      body.text = t;
-    }
-    document.getElementById('extract-loading').style.display = 'block';
-    document.getElementById('extract-result').style.display = 'none';
+    if (extractTab === 'file') { if (!extractFile) { errEl.textContent = "⚠ Please select a file."; errEl.style.display = 'block'; return; } body.data = extractFile.base64; body.name = extractFile.name; }
+    else if (extractTab === 'url') { const u = document.getElementById('extract-url-input').value.trim(); if (!u) { errEl.textContent = "⚠ Please enter a URL."; errEl.style.display = 'block'; return; } body.url = u; }
+    else { const t = document.getElementById('extract-text-input').value.trim(); if (t.length < 10) { errEl.textContent = "⚠ Please paste some text."; errEl.style.display = 'block'; return; } body.text = t; }
+    document.getElementById('extract-loading').style.display = 'block'; document.getElementById('extract-result').style.display = 'none';
     try {
       const resp = await fetch(`${BACKEND}/extract`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       if (!resp.ok) { const err = await resp.json(); throw new Error(err.error || "HTTP " + resp.status); }
-      const blob = await resp.blob();
-      const url = URL.createObjectURL(blob);
+      const blob = await resp.blob(); const url = URL.createObjectURL(blob);
       const text = extractFormat === 'txt' ? await blob.text() : '';
-      document.getElementById('extract-preview').textContent = extractFormat === 'txt' ? text.slice(0, 1000) + (text.length > 1000 ? '…' : '') : 'Your .docx file is ready to download.';
+      document.getElementById('extract-preview').textContent = extractFormat === 'txt' ? text.slice(0,1000) + (text.length > 1000 ? '…' : '') : 'Your .docx file is ready to download.';
       document.getElementById('extract-result-meta').textContent = query;
-      const link = document.getElementById('extract-download-link');
-      link.href = url; link.download = `extracted.${extractFormat}`; link.style.display = 'inline-flex';
-      document.getElementById('extract-loading').style.display = 'none';
-      incrementQuota();
-      document.getElementById('extract-result').style.display = 'block';
+      const link = document.getElementById('extract-download-link'); link.href = url; link.download = `extracted.${extractFormat}`; link.style.display = 'inline-flex';
+      document.getElementById('extract-loading').style.display = 'none'; incrementQuota(); document.getElementById('extract-result').style.display = 'block';
     } catch(e) { document.getElementById('extract-loading').style.display = 'none'; errEl.textContent = "⚠ " + e.message; errEl.style.display = 'block'; }
   }
 
   async function handleTranslate() {
-    const errEl = document.getElementById('translate-error');
-    errEl.style.display = 'none';
+    const errEl = document.getElementById('translate-error'); errEl.style.display = 'none';
     const target = document.getElementById('translate-target').value;
     let body = { targetLanguage: target, format: translateFormat, userApiKey: getUserApiKey() };
-    if (translateTab === 'text') {
-      const t = document.getElementById('translate-text-input').value.trim();
-      if (t.length < 10) { errEl.textContent = "⚠ Please paste some text."; errEl.style.display = 'block'; return; }
-      body.text = t;
-    } else if (translateTab === 'url') {
-      const u = document.getElementById('translate-url-input').value.trim();
-      if (!u) { errEl.textContent = "⚠ Please enter a URL."; errEl.style.display = 'block'; return; }
-      body.url = u;
-    } else {
-      if (!translateFile) { errEl.textContent = "⚠ Please select a file."; errEl.style.display = 'block'; return; }
-      body.data = translateFile.base64; body.name = translateFile.name;
-    }
-    document.getElementById('translate-loading').style.display = 'block';
-    document.getElementById('translate-result').style.display = 'none';
+    if (translateTab === 'text') { const t = document.getElementById('translate-text-input').value.trim(); if (t.length < 10) { errEl.textContent = "⚠ Please paste some text."; errEl.style.display = 'block'; return; } body.text = t; }
+    else if (translateTab === 'url') { const u = document.getElementById('translate-url-input').value.trim(); if (!u) { errEl.textContent = "⚠ Please enter a URL."; errEl.style.display = 'block'; return; } body.url = u; }
+    else { if (!translateFile) { errEl.textContent = "⚠ Please select a file."; errEl.style.display = 'block'; return; } body.data = translateFile.base64; body.name = translateFile.name; }
+    document.getElementById('translate-loading').style.display = 'block'; document.getElementById('translate-result').style.display = 'none';
     try {
       const resp = await fetch(`${BACKEND}/translate`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       if (!resp.ok) { const err = await resp.json(); throw new Error(err.error || "HTTP " + resp.status); }
-      const blob = await resp.blob();
-      const url = URL.createObjectURL(blob);
+      const blob = await resp.blob(); const url = URL.createObjectURL(blob);
       const text = translateFormat === 'txt' ? await blob.text() : '';
-      document.getElementById('translate-preview').textContent = translateFormat === 'txt' ? text.slice(0, 1000) + (text.length > 1000 ? '…' : '') : 'Your .docx translation is ready to download.';
+      document.getElementById('translate-preview').textContent = translateFormat === 'txt' ? text.slice(0,1000) + (text.length > 1000 ? '…' : '') : 'Your .docx translation is ready to download.';
       document.getElementById('translate-result-meta').textContent = 'Translated to ' + target;
-      const link = document.getElementById('translate-download-link');
-      link.href = url; link.download = `translated_${target}.${translateFormat}`; link.style.display = 'inline-flex';
-      document.getElementById('translate-loading').style.display = 'none';
-      incrementQuota();
-      document.getElementById('translate-result').style.display = 'block';
+      const link = document.getElementById('translate-download-link'); link.href = url; link.download = `translated_${target}.${translateFormat}`; link.style.display = 'inline-flex';
+      document.getElementById('translate-loading').style.display = 'none'; incrementQuota(); document.getElementById('translate-result').style.display = 'block';
     } catch(e) { document.getElementById('translate-loading').style.display = 'none'; errEl.textContent = "⚠ " + e.message; errEl.style.display = 'block'; }
   }
 
   async function handleCompare() {
-    const errEl = document.getElementById('compare-error');
-    errEl.style.display = 'none';
+    const errEl = document.getElementById('compare-error'); errEl.style.display = 'none';
     if (!compareFile1 || !compareFile2) { errEl.textContent = "⚠ Please select both documents."; errEl.style.display = 'block'; return; }
-    document.getElementById('compare-input').style.display = 'none';
-    document.getElementById('compare-loading').style.display = 'block';
-    document.getElementById('compare-result').style.display = 'none';
+    document.getElementById('compare-input').style.display = 'none'; document.getElementById('compare-loading').style.display = 'block'; document.getElementById('compare-result').style.display = 'none';
     let resp, data;
-    try {
-      resp = await fetch(`${BACKEND}/compare`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ file1: { data: compareFile1.base64, name: compareFile1.name }, file2: { data: compareFile2.base64, name: compareFile2.name }, userApiKey: getUserApiKey() }) });
-      data = await resp.json();
-    } catch(e) { document.getElementById('compare-input').style.display = 'block'; document.getElementById('compare-loading').style.display = 'none'; errEl.textContent = "⚠ " + e.message; errEl.style.display = 'block'; return; }
+    try { resp = await fetch(`${BACKEND}/compare`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ file1: { data: compareFile1.base64, name: compareFile1.name }, file2: { data: compareFile2.base64, name: compareFile2.name }, userApiKey: getUserApiKey() }) }); data = await resp.json(); }
+    catch(e) { document.getElementById('compare-input').style.display = 'block'; document.getElementById('compare-loading').style.display = 'none'; errEl.textContent = "⚠ " + e.message; errEl.style.display = 'block'; return; }
     if (!resp.ok || data.error) { document.getElementById('compare-input').style.display = 'block'; document.getElementById('compare-loading').style.display = 'none'; errEl.textContent = "⚠ " + (data.error || "HTTP " + resp.status); errEl.style.display = 'block'; return; }
     let result;
-    try {
-      const clean = data.result.replace(/^```[\w]*\n?/, "").replace(/\n?```$/, "").trim();
-      result = JSON.parse(clean);
-    } catch(e) { document.getElementById('compare-input').style.display = 'block'; document.getElementById('compare-loading').style.display = 'none'; errEl.textContent = "⚠ Could not parse comparison result."; errEl.style.display = 'block'; return; }
+    try { const clean = data.result.replace(/^```[\w]*\n?/, "").replace(/\n?```$/, "").trim(); result = JSON.parse(clean); }
+    catch(e) { document.getElementById('compare-input').style.display = 'block'; document.getElementById('compare-loading').style.display = 'none'; errEl.textContent = "⚠ Could not parse comparison result."; errEl.style.display = 'block'; return; }
     const similarity = result.similarity || 0;
     const color = similarity > 70 ? '#4caf7d' : similarity > 40 ? '#ff9a3c' : '#ff5f5f';
     lastCompareText = `${compareFile1.name} vs ${compareFile2.name}\n\n${result.summary}\n\nDifferences:\n` + result.differences.map(d => `${d.category}:\n  Doc 1: ${d.doc1}\n  Doc 2: ${d.doc2}`).join('\n\n');
@@ -1219,9 +1132,7 @@
         <thead><tr><th>Category</th><th>${compareFile1.name}</th><th>${compareFile2.name}</th></tr></thead>
         <tbody>${result.differences.map(d => `<tr><td>${d.category}</td><td>${d.doc1}</td><td>${d.doc2}</td></tr>`).join('')}</tbody>
       </table>`;
-    document.getElementById('compare-loading').style.display = 'none';
-    incrementQuota();
-    document.getElementById('compare-result').style.display = 'block';
+    document.getElementById('compare-loading').style.display = 'none'; incrementQuota(); document.getElementById('compare-result').style.display = 'block';
   }
 
   function resetCompare() {
@@ -1231,49 +1142,13 @@
     ['slot1','slot2'].forEach(id => document.getElementById(id).classList.remove('has-file'));
     ['file-compare-1','file-compare-2'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('compare-error').style.display = 'none';
-    document.getElementById('compare-input').style.display = 'block';
-    document.getElementById('compare-result').style.display = 'none';
+    document.getElementById('compare-input').style.display = 'block'; document.getElementById('compare-result').style.display = 'none';
   }
-  function resetExtract() {
-    extractFile = null;
-    document.getElementById('extract-file-chip').style.display = 'none';
-    document.getElementById('extract-file-input').value = '';
-    document.getElementById('extract-url-input').value = '';
-    document.getElementById('extract-text-input').value = '';
-    document.getElementById('extract-query').value = '';
-    document.getElementById('extract-error').style.display = 'none';
-    document.getElementById('extract-result').style.display = 'none';
-  }
-  function resetTranslate() {
-    translateFile = null;
-    document.getElementById('translate-file-chip').style.display = 'none';
-    document.getElementById('translate-file-input').value = '';
-    document.getElementById('translate-url-input').value = '';
-    document.getElementById('translate-text-input').value = '';
-    document.getElementById('translate-error').style.display = 'none';
-    document.getElementById('translate-result').style.display = 'none';
-  }
-  function copyResult() {
-    navigator.clipboard.writeText(lastSummary).then(() => {
-      const btn = document.getElementById('copy-btn');
-      btn.textContent = "✓ Copied"; btn.classList.add('copied');
-      setTimeout(() => { btn.textContent = "Copy"; btn.classList.remove('copied'); }, 2000);
-    });
-  }
-  function copyCompare() {
-    navigator.clipboard.writeText(lastCompareText).then(() => {
-      const btn = document.getElementById('compare-copy-btn');
-      btn.textContent = "✓ Copied"; btn.classList.add('copied');
-      setTimeout(() => { btn.textContent = "Copy"; btn.classList.remove('copied'); }, 2000);
-    });
-  }
-  function reset() {
-    document.getElementById('text-input').value = '';
-    document.getElementById('url-input').value = '';
-    clearFile();
-    document.getElementById('error-msg').style.display = 'none';
-    show('input');
-  }
+  function resetExtract() { extractFile = null; document.getElementById('extract-file-chip').style.display = 'none'; document.getElementById('extract-file-input').value = ''; document.getElementById('extract-url-input').value = ''; document.getElementById('extract-text-input').value = ''; document.getElementById('extract-query').value = ''; document.getElementById('extract-error').style.display = 'none'; document.getElementById('extract-result').style.display = 'none'; }
+  function resetTranslate() { translateFile = null; document.getElementById('translate-file-chip').style.display = 'none'; document.getElementById('translate-file-input').value = ''; document.getElementById('translate-url-input').value = ''; document.getElementById('translate-text-input').value = ''; document.getElementById('translate-error').style.display = 'none'; document.getElementById('translate-result').style.display = 'none'; }
+  function copyResult() { navigator.clipboard.writeText(lastSummary).then(() => { const btn = document.getElementById('copy-btn'); btn.textContent = "✓ Copied"; btn.classList.add('copied'); setTimeout(() => { btn.textContent = "Copy"; btn.classList.remove('copied'); }, 2000); }); }
+  function copyCompare() { navigator.clipboard.writeText(lastCompareText).then(() => { const btn = document.getElementById('compare-copy-btn'); btn.textContent = "✓ Copied"; btn.classList.add('copied'); setTimeout(() => { btn.textContent = "Copy"; btn.classList.remove('copied'); }, 2000); }); }
+  function reset() { document.getElementById('text-input').value = ''; document.getElementById('url-input').value = ''; clearFile(); document.getElementById('error-msg').style.display = 'none'; show('input'); }
 </script>
 </body>
 </html>
